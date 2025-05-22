@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // בדיקה שנבחרו מוצרים
         const hasProducts = Object.keys(orderData).some(key => 
-            key.startsWith('quantity_') && orderData[key]
+            key.startsWith('כמות_') && orderData[key]
         );
         
         if (!hasProducts) {
@@ -246,13 +246,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // איסוף המוצרים שנבחרו
         const selectedProducts = [];
         Object.keys(orderData).forEach(key => {
-            if (key.startsWith('quantity_') && orderData[key]) {
-                const productType = key.replace('quantity_', '');
-                const weightKey = `weight_${productType}`;
-                const notesKey = `notes_${productType}`;
+            if (key.startsWith('כמות_') && orderData[key]) {
+                const productType = key.replace('כמות_', '');
+                const weightKey = `משקל_${productType}`;
+                const notesKey = `הערות_${productType}`;
                 
                 selectedProducts.push({
-                    name: getProductDisplayName(productType),
+                    name: productType.replace(/_/g, ' '),
                     quantity: orderData[key],
                     weight: orderData[weightKey] || '',
                     notes: orderData[notesKey] || ''
@@ -299,16 +299,5 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // גלילה לסיכום
         summaryElement.scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    // פונקציה להמרת שם מוצר לתצוגה
-    function getProductDisplayName(productType) {
-        const productNames = {
-            'turkey_red': 'הודו אדום',
-            'ground_beef': 'טחון בקר',
-            // הוסף כאן עוד מוצרים...
-        };
-        
-        return productNames[productType] || productType;
     }
 });
