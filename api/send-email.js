@@ -1,8 +1,9 @@
 const sgMail = require('@sendgrid/mail');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 
 // הגדרת SendGrid API Key
-sgMail.setApiKey(process.env.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);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
     // אפשר רק POST requests
@@ -21,8 +22,8 @@ export default async function handler(req, res) {
         
         // שליחת האימיל עם PDF מצורף
         const msg = {
-            to: 'yus2770@gmail.com', // ** החלף עם המייל שלך **
-            from: 'yus2770@gmail.com', // ** החלף עם המייל המאומת בSendGrid **
+            to: 'your-email@example.com', // ** החלף עם המייל שלך **
+            from: 'your-verified-email@example.com', // ** החלף עם המייל המאומת בSendGrid **
             subject: `הזמנה חדשה מ-${formData.customerName}`,
             html: emailHTML,
             attachments: [
@@ -130,8 +131,10 @@ function createEmailHTML(data) {
 // פונקציה ליצירת PDF
 async function createPDF(htmlContent) {
     const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
     });
     
     const page = await browser.newPage();
