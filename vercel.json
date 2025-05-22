@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/send-email.js": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "SENDGRID_API_KEY": "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"
+  }
+}

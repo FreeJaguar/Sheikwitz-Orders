@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הזמנת מוצרי שייקביץ</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* תוספת סגנון לטבלת סיכום */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .summary-table th, .summary-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        
+        .summary-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        
+        .summary-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>טופס הזמנת מוצרי שייקביץ</h1>
+
+        <form id="meatOrderForm" action="https://formsubmit.co/d6cc8426e0f2b621a7933c6ef2704ad2" method="POST">
+            <!-- שדות נסתרים לקונפיגורציה של FormSubmit -->
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="http://sheikwitz.atwebpages.com/new-order-form/thanks.html">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_subject" value="הזמנת מוצרי בשר חדשה">
+            <!-- אם נדרש העתק להודעה -->
+            <!-- <input type="hidden" name="_cc" value="cc-email@example.com"> -->
+
+            <!-- שדות כלליים -->
+            <div class="form-header">
+                <div class="form-group">
+                    <label for="customerName">שם לקוח <span class="required">*</span></label>
+                    <input type="text" id="customerName" name="שם לקוח" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customerCode">קוד לקוח</label>
+                    <input type="text" id="customerCode" name="קוד לקוח">
+                </div>
+                
+                <div class="form-group">
+                    <label for="deliveryDate">תאריך אספקה</label>
+                    <input type="date" id="deliveryDate" name="תאריך אספקה">
+                </div>
+            </div>
+
+            <!-- חיפוש מוצרים -->
+            <div class="search-container">
+                <label for="productSearch">חיפוש מוצר:</label>
+                <input type="text" id="productSearch" placeholder="הקלד לחיפוש מוצר...">
+            </div>
+
+            <!-- רשימת מוצרים לפי קטגוריות -->
+            <div class="products-container">
+                <!-- קטגוריה: מוצרי הודו -->
+                <div class="category">
+                    <div class="category-header" data-category="chicken">
+                        <h3>מוצרי הודו</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="category-content" id="chicken-content">
+                        <div class="product-row">
+                            <div class="product-name">הודו אדום</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_הודו_אדום" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_הודו_אדום" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_הודו_אדוםי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                        <div class="product-row">
+                            <div class="product-name">הודו אדום חנות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_הודו_אדום_חנות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_הודו_אדום_חנות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_הודו_אדום_חנות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                        <div class="product-row">
+                            <div class="product-name">שניצל</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שניצל" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שניצל" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שניצל" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שווארמה</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שווארמה" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שווארמה" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שווארמה" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שווארמה חנות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שווארמה_חנות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שווארמה_חנות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שווארמה_חנות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טחון הודו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_הודו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_הודו" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_הודו" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טחון הודו 1 ק"ג</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_הודו_1_קג" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_הודו_1_קג" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_הודו_1_קג" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טחון חזה</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_חזה" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_חזה" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_חזה" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טחון אדום</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_אדום" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_אדום" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_אדום" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">רולדה הודו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_רולדה_הודו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_רולדה_הודו" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_רולדה_הודו" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">גרון</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_גרון" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_גרון" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_גרון" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">כנפיים</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_כנפיים" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_כנפיים" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_כנפיים" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שוקיים</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שוקיים" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שוקיים" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שוקיים" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">צלעות הודו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צלעות_הודו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צלעות_הודו" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צלעות_הודו" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">סטייק הודו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סטייק_הודו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סטייק_הודו" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סטייק_הודו" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שיפודים</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שיפודים" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שיפודים" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שיפודים" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קורקבן</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קורקבן" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קורקבן" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קורקבן" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">כבד הודו צלוי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_כבד_הודו_צלוי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_כבד_הודו_צלוי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_כבד_הודו_צלוי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- קטגוריה: מוצרי בקר -->
+                <div class="category">
+                    <div class="category-header" data-category="turkey">
+                        <h3>הודו</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="category-content" id="turkey-content">
+                        <div class="product-row">
+                            <div class="product-name">טחון בקר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_בקר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_בקר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_בקר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                        <div class="product-row">
+                            <div class="product-name">טחון בקר 1 ק"ג</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_בקר_1_קג" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_בקר_1_קג" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_בקר_1_קג" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">גולש בקר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_גולש_בקר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_גולש_בקר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_גולש_בקר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">חמין</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_חמין" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_חמין" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_חמין" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">רולדה בקר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_רולדה_בקר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_רולדה_בקר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_רולדה_בקר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">סטייק שלם</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סטייק_שלם" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סטייק_שלם" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סטייק_שלם" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">סטייק פרוסו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סטייק_פרוס" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סטייק_פרוס" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סטייק_פרוס" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">סטייק דק</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סטייק_דק" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סטייק_דק" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סטייק_דק" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">סטייק עצם</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סטייק_עצם" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סטייק_עצם" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סטייק_עצם" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">צלעות מס' 2</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צלעות_מס'_2ו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צלעות_מס'_2" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צלעות_מס'_2" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">חזה מס' 3</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_חזה_מס'_3" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_חזה_מס'_3" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_חזה_מס'_3" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">כתף מס' 4</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_כתף_מס'_4" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_כתף_מס'_4" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_כתף_מס'_4" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">צלי כתף מס' 5</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צלי_כתף_מס'_5" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צלי_כתף_מס'_5" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צלי_כתף_מס'_5" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">פילה מדומה מס' 6</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_פילה_מדומה_מס'_6" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_פילה_מדומה_מס'_6" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_פילה_מדומה_מס'_6" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">מכסה הצלע מס' 7</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_מכסה_הצלע_מס'_7" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_מכסה_הצלע_מס'_7" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_מכסה_הצלע_מס'_7" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">מכסה ורד הצלע מס' 17</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_מכסה_ורד_הצלע_מס'_17" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_מכסה_ורד_הצלע_מס'_17" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_מכסה_ורד_הצלע_מס'_17" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שריר מס' 8</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שריר_מס'_8" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שריר_מס'_8" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שריר_מס'_8" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אסדו שלם מס' 9</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אסדו_שלם_מס'_9" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אסדו_שלם_מס'_9" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אסדו_שלם_מס'_9" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אסדו מגש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אסדו_מגש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אסדו_מגש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אסדו_מגש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אסדו 99</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אסדו_99" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אסדו_99" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אסדו_99" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אסדו עצם שלם</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אסדו_עצם_שלם" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אסדו_עצם_שלם" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אסדו_עצם_שלם" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אסדו עצם מגש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אסדו_עצם_מגש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אסדו_עצם_מגש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אסדו_עצם_מגש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">צוואר מס' 10</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צוואר_מס'_10" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צוואר_מס'_10" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צוואר_מס'_10" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שומן בקר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שומן_בקר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שומן_בקר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שומן_בקר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">לב הצלעות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_לב_הצלעות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_לב_הצלעות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_לב_הצלעות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">עצמות מח</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_עצמות_מח" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_עצמות_מח" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_עצמות_מח" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אצבעות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אצבעות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אצבעות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אצבעות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">גידים</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_גידים" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_גידים" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_גידים" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">לשון</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_לשון" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_לשון" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_לשון" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">ראש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_ראש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_ראש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_ראש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אוסבוקו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אוסבוקו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אוסבוקו" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אוסבוקו" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שניצל עגל</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שניצל_עגל" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שניצל_עגל" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שניצל_עגל" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- קטגוריה: מוצרים -->
+                <div class="category">
+                    <div class="category-header" data-category="beef">
+                        <h3>מוצרים</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="category-content" id="beef-content">
+                        <div class="product-row">
+                            <div class="product-name">קבב</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קבב" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קבב" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קבב" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                        <div class="product-row">
+                            <div class="product-name">המבורגר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_המבורגר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_המבורגר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_המבורגר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                        <div class="product-row">
+                            <div class="product-name">נקיניקיות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נקיניקיות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקיניקיות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקיניקיות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						 <div class="product-row">
+                            <div class="product-name">נקניקיות חריפות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נקניקיות_חריפות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקניקיות_חריפות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקניקיות_חריפות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						 <div class="product-row">
+                            <div class="product-name">נקניקיות בקר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נקניקיות_בקר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקניקיות_בקר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקניקיות_בקר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						 <div class="product-row">
+                            <div class="product-name">מרגז</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_מרגז" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_מרגז" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_מרגז" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						 <div class="product-row">
+                            <div class="product-name">צוריסוס</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צוריסוס" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צוריסוס" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צוריסוס" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						 <div class="product-row">
+                            <div class="product-name">קציצות בקר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קציצות_בקר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קציצות_בקר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קציצות_בקר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						 <div class="product-row">
+                            <div class="product-name">סטייקבורגר</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סטייקבורגר" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סטייקבורגר" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סטייקבורגר" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						 <div class="product-row">
+                            <div class="product-name">קוגל לחמין</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קוגל_לחמין" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קוגל_לחמין" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קוגל_לחמין" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- קטגוריה: מוסדי -->
+                <div class="category">
+                    <div class="category-header" data-category="sausages">
+                        <h3>מוסדי</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="category-content" id="sausages-content">
+                        <div class="product-row">
+                            <div class="product-name">שניצל מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שניצל_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שניצל_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שניצל_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                        <div class="product-row">
+                            <div class="product-name">גולש בקר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_גולש_בקר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_גולש_בקר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_גולש_בקר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קבב בקר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קבב_בקר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קבב_בקר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קבב_בקר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">המבורגר בקר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_המבורגר_בקר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_המבורגר_בקר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_המבורגר_בקר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">נקניקיות מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נקניקיות_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקניקיות_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקניקיות_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">נקניקיות בקר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נקניקיות_בקר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקניקיות_בקר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקניקיות_בקר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קציצות בקר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קציצות_בקר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קציצות_בקר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קציצות_בקר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שווארמה מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שווארמה_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שווארמה_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שווארמה_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שווארמה תפזורת</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שווארמה_תפזורת" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שווארמה_תפזורת" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שווארמה_תפזורת" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">הודו אדום קוביות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_הודו_אדום_קוביות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_הודו_אדום_קוביות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_הודו_אדום_קוביות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">נתחי חזה</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נתחי_חזה" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נתחי_חזה" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נתחי_חזה" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">פרפר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_פרפר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_פרפר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_פרפר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שומן הודו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שומן_הודו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שומן_הודו" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שומן_הודו" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">מכסה הצלע קוביות</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_מכסה_הצלע_קוביות" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_מכסה_הצלע_קוביות" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_מכסה_הצלע_קוביות" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טריימינג</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טריימינג" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טריימינג" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טריימינג" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">מרגז מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_מרגז_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_מרגז_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_מרגז_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">צוריסוס מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צוריסוס_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צוריסוס_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צוריסוס_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קבב הודו מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קבב_הודו_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קבב_הודו_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קבב_הודו_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">המבורגר הודו מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_המבורגר_הודו_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_המבורגר_הודו_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_המבורגר_הודו_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טחון הודו מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_הודו_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_הודו_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_הודו_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טחון בקר בקר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחון_בקר_בקר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחון_בקר_בקר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחון_בקר_בקר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">רולדה הודו מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_רולדה_הודו_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_רולדה_הודו_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_רולדה_הודו_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">רולדה בקר מוסדי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_רולדה_בקר_מוסדי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_רולדה_בקר_מוסדי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_רולדה_בקר_מוסדי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- קטגוריה: נקניקים -->
+                <div class="category">
+                    <div class="category-header" data-category="ground">
+                        <h3>נקניקים</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="category-content" id="ground-content">
+                        <div class="product-row">
+                            <div class="product-name">חזה 400</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_חזה_400" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_חזה_400" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_חזה_400" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                        <div class="product-row">
+                            <div class="product-name">רומני 400</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_רומני_400" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_רומני_400" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_רומני_400" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">בקר 400</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_בקר_400" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_בקר_400" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_בקר_400" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">סלמי 400</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סלמי_400" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סלמי_400" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סלמי_400" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קוניאק 400</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קוניאק_400" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קוניאק_400" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קוניאק_400" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">הודו 400</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_הודו_400" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_הודו_400" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_הודו_400" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">חזה 200</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_חזה_200" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_חזה_200" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_חזה_200" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">רומני 200</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_רומני_200" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_רומני_200" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_רומני_200" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">בקר 200</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_בקר_200" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_בקר_200" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_בקר_200" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">סלמי 200</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_סלמי_200" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_סלמי_200" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_סלמי_200" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קוניאק 200</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קוניאק_200" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קוניאק_200" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קוניאק_200" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">הודו 200</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_הודו_200" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_הודו_200" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_הודו_200" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">חזה מעושן</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_חזה_מעושן" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_חזה_מעושן" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_חזה_מעושן" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">רומני מעושן</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_רומני_מעושן" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_רומני_מעושן" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_רומני_מעושן" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">בקר מעושן</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_בקר_מעושן" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_בקר_מעושן" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_בקר_מעושן" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">נקניק סלמי</div>
+                            <div class="product-fields">
+                                <input type="number" name="הערות_נקניק_סלמי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקניק_סלמי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקניק_סלמי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">נקניק קוניאק</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נקניק_קוניאק" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקניק_קוניאק" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקניק_קוניאק" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">נקניק הודו</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_נקניק_הודו" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_נקניק_הודו" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_נקניק_הודו" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קבנוס</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קבנוס" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קבנוס" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קבנוס" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">קוניאק יבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_קוניאק_יבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_קוניאק_יבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_קוניאק_יבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- קטגוריה: כבש -->
+                <div class="category">
+                    <div class="category-header" data-category="frozen">
+                        <h3>כבש</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div class="category-content" id="frozen-content">
+                        <div class="product-row">
+                            <div class="product-name">צלעות כבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צלעות_כבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צלעות_כבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צלעות_כבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">כתף כבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_כתף_כבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_כתף_כבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_כתף_כבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">צוואר כבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_צוואר_כבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_צוואר_כבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_צוואר_כבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">זרוע כבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_זרוע_כבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_זרוע_כבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_זרוע_כבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">שומן כבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_שומן_כבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_שומן_כבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_שומן_כבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">חמין כבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_חמין_כבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_חמין_כבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_חמין_כבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אסדו כבש</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אסדו_כבש" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אסדו_כבש" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אסדו_כבש" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">כבד לא צלוי</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_כבד_לא_צלוי" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_כבד_לא_צלוי" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_כבד_לא_צלוי" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">טחול</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_טחול" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_טחול" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_טחול" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">אשכים</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_אשכים" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_אשכים" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_אשכים" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+						<div class="product-row">
+                            <div class="product-name">לב</div>
+                            <div class="product-fields">
+                                <input type="number" name="כמות_לב" placeholder="כמות" min="0" class="quantity">
+                                <input type="number" name="משקל_לב" placeholder="משקל (ק״ג)" step="0.1" min="0" class="weight">
+                                <input type="text" name="הערות_לב" placeholder="הערות" class="notes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- הערות כלליות -->
+            <div class="general-notes">
+                <label for="orderNotes">הערות כלליות להזמנה:</label>
+                <textarea id="orderNotes" name="הערות_כלליות" rows="4"></textarea>
+            </div>
+
+            <!-- כפתור שליחה -->
+            <div class="submit-container">
+                <input type="submit" value="שלח הזמנה" id="submitBtn">
+            </div>
+            
+            <!-- תצוגת סיכום אופציונלית -->
+            <div id="orderSummary" class="order-summary">
+                <h3>סיכום הזמנה</h3>
+                <div id="summaryContent"></div>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
