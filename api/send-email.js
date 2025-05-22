@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer-core');
 const chromium = require('@sparticuz/chromium');
 
 // הגדרת SendGrid API Key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(process.env.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);
 
 export default async function handler(req, res) {
     // אפשר רק POST requests
@@ -22,8 +22,8 @@ export default async function handler(req, res) {
         
         // שליחת האימיל עם PDF מצורף
         const msg = {
-            to: 'your-email@example.com', // ** החלף עם המייל שלך **
-            from: 'your-verified-email@example.com', // ** החלף עם המייל המאומת בSendGrid **
+            to: 'yus2770@gmail.com', // ** החלף עם המייל שלך **
+            from: 'yus2770@gmail.com', // ** החלף עם המייל המאומת בSendGrid **
             subject: `הזמנה חדשה מ-${formData.customerName}`,
             html: emailHTML,
             attachments: [
