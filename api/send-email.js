@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer-core');
 const chromium = require('@sparticuz/chromium');
 
 // הגדרת SendGrid API Key
-sgMail.setApiKey(process.env.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);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
     // אפשר רק POST requests
@@ -61,13 +61,13 @@ function createEmailHTML(data) {
     
     // עבור כל שדה בטופס
     Object.keys(data).forEach(key => {
-        if (key.startsWith('quantity_') && data[key]) {
-            const productType = key.replace('quantity_', '');
-            const weightKey = `weight_${productType}`;
-            const notesKey = `notes_${productType}`;
+        if (key.startsWith('כמות_') && data[key]) {
+            const productType = key.replace('כמות_', '');
+            const weightKey = `משקל_${productType}`;
+            const notesKey = `הערות_${productType}`;
             
             selectedProducts.push({
-                name: getProductName(productType),
+                name: productType.replace(/_/g, ' '), // המרת _ לרווח
                 quantity: data[key],
                 weight: data[weightKey] || '',
                 notes: data[notesKey] || ''
@@ -84,8 +84,13 @@ function createEmailHTML(data) {
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h2 style="color: #34495e; margin-top: 0;">פרטי הלקוח</h2>
             <p><strong>שם לקוח:</strong> ${data.customerName}</p>
-            ${data.customerCode ? `<p><strong>קוד לקוח:</strong> ${data.customerCode}</p>` : ''}
-            ${data.deliveryDate ? `<p><strong>תאריך אספקה:</strong> ${formatDate(data.deliveryDate)}</p>` : ''}
+            if (data.customerCode) {
+            html += `<p><strong>קוד לקוח:</strong> ${data.customerCode}</p>`;
+        }
+        
+        if (data.deliveryDate) {
+            html += `<p><strong>תאריך אספקה:</strong> ${formatDate(data.deliveryDate)}</p>`;
+        }
             <p><strong>תאריך ההזמנה:</strong> ${getCurrentDateTime()}</p>
         </div>
         
@@ -111,12 +116,14 @@ function createEmailHTML(data) {
             </tbody>
         </table>
         
-        ${data.orderNotes ? `
+        if (data.orderNotes) {
+            html += `
         <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #2c3e50; margin-top: 0;">הערות כלליות</h3>
             <p>${data.orderNotes}</p>
         </div>
-        ` : ''}
+        `;
+        }
         
         <div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">
             <p style="margin: 0; color: #155724;">
@@ -159,8 +166,16 @@ async function createPDF(htmlContent) {
 function getProductName(productType) {
     const productNames = {
         'turkey_red': 'הודו אדום',
-        'ground_beef': 'טחון בקר',
-        // הוסף כאן עוד מוצרים...
+        'turkey_white': 'הודו לבן', 
+        'turkey_ground': 'הודו טחון',
+        'beef_ground': 'טחון בקר',
+        'beef_entrecote': 'אנטריקוט',
+        'beef_sirloin': 'סינטה',
+        'chicken_whole': 'עוף שלם',
+        'chicken_breast': 'חזה עוף',
+        'chicken_drumsticks': 'שוקיים',
+        'lamb_shoulder': 'כתף כבש',
+        'lamb_ribs': 'צלעות כבש'
     };
     
     return productNames[productType] || productType;
