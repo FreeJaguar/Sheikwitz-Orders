@@ -1,7 +1,7 @@
 {
   "name": "sheikwitz-orders",
   "version": "1.0.0",
-  "description": "טופס הזמנת מוצרי בשר עם שליחת אימיל",
+  "description": "טופס הזמנת מוצרי בשר עם שליחת PDF באימיל",
   "main": "index.html",
   "scripts": {
     "dev": "vercel dev",
