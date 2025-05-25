@@ -284,9 +284,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // יצירת תוכן סיכום
+        // יצירת תוכן סיכום עם טבלה מסודרת
         let html = `
             <div style="text-align: right;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;">פרטי הלקוח</h3>
                 <p><strong>שם לקוח:</strong> ${orderData.customerName || ''}</p>
         `;
         
@@ -299,21 +300,44 @@ document.addEventListener('DOMContentLoaded', function() {
             html += `<p><strong>תאריך אספקה:</strong> ${date.toLocaleDateString('he-IL')}</p>`;
         }
         
-        html += '<h4>פרטי הזמנה:</h4><ul>';
+        html += `
+                <h3 style="color: #2c3e50; margin: 20px 0 15px 0;">פרטי ההזמנה</h3>
+                <table class="summary-table" style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                    <thead>
+                        <tr style="background-color: #34495e; color: white;">
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מוצר</th>
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center; width: 80px;">כמות</th>
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center; width: 100px;">משקל (ק"ג)</th>
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">הערות</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
         
-        selectedProducts.forEach(product => {
-            html += `<li style="margin-bottom: 5px;">
-                <strong>${product.name}</strong>
-                ${product.quantity ? ` - כמות: ${product.quantity}` : ''}
-                ${product.weight ? ` - משקל: ${product.weight} ק"ג` : ''}
-                ${product.notes ? ` - הערות: ${product.notes}` : ''}
-            </li>`;
+        selectedProducts.forEach((product, index) => {
+            const bgColor = index % 2 === 0 ? '#f9f9f9' : '#ffffff';
+            html += `
+                        <tr style="background-color: ${bgColor};">
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; text-align: right;">${product.name}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.quantity}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.weight || '-'}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${product.notes || '-'}</td>
+                        </tr>
+            `;
         });
         
-        html += '</ul>';
+        html += `
+                    </tbody>
+                </table>
+        `;
         
         if (orderData.orderNotes) {
-            html += `<p><strong>הערות כלליות:</strong> ${orderData.orderNotes}</p>`;
+            html += `
+                <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h4 style="color: #2c3e50; margin-top: 0;">הערות כלליות:</h4>
+                    <p>${orderData.orderNotes}</p>
+                </div>
+            `;
         }
         
         html += '</div>';
