@@ -36,8 +36,8 @@ export default async function handler(req, res) {
         sgMail.setApiKey(apiKey);
         
         const msg = {
-            to: 'your-email@example.com', // ** החלף עם המייל שלך **
-            from: 'your-verified-email@example.com', // ** החלף עם המייל המאומת **
+            to: 'yus2770@gmail.com', // ** החלף עם המייל שלך **
+            from: 'yus2770@gmail.com', // ** החלף עם המייל המאומת **
             subject: `בדיקת הזמנה מ-${customerName}`,
             text: `הזמנה חדשה התקבלה מ-${customerName}`
         };
