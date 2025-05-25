@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // בדיקה שנבחרו מוצרים
-    console.log('orderData:', orderData); // ** הוסף את השורה הזו **
+    console.log('orderData:', orderData); // ** כאן זה בסדר **
     const hasProducts = Object.keys(orderData).some(key => 
     key.startsWith('כמות_') && orderData[key]
     );
