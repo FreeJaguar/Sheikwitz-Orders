@@ -100,6 +100,13 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.products-container').appendChild(message);
         }
     });
+
+    // בדיקה שנבחרו מוצרים
+    console.log('orderData:', orderData); // ** הוסף את השורה הזו **
+    const hasProducts = Object.keys(orderData).some(key => 
+    key.startsWith('כמות_') && orderData[key]
+    );
+
     
     // איפוס תצוגת קטגוריות
     function resetCategoriesDisplay() {
