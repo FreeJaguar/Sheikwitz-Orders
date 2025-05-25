@@ -1,17 +1,26 @@
 export default async function handler(req, res) {
+    // אפשר רק POST requests
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     try {
-        console.log('Method:', req.method);
-        console.log('Body:', req.body);
+        console.log('קיבלנו בקשה:', req.body);
+        
+        const formData = req.body;
+        const customerName = formData.customerName || formData['שם לקוח'];
         
         // בדיקה בסיסית
-        if (req.method !== 'POST') {
-            return res.status(405).json({ error: 'Method not allowed' });
+        if (!customerName) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'שם לקוח חסר',
+                received: Object.keys(formData || {})
+            });
         }
         
         // בדיקה אם יש SendGrid API Key
         const apiKey = process.env.SENDGRID_API_KEY;
-        console.log('API Key exists:', !!apiKey);
-        
         if (!apiKey) {
             return res.status(500).json({ 
                 success: false, 
@@ -19,50 +28,140 @@ export default async function handler(req, res) {
             });
         }
         
-        // בדיקה בסיסית של הנתונים
-        const formData = req.body;
-        const customerName = formData.customerName || formData['שם לקוח'];
+        // יצירת HTML לאימיל
+        const emailHTML = createEmailHTML(formData, customerName);
         
-        if (!formData || !customerName) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'נתונים חסרים - שם לקוח נדרש',
-                received: Object.keys(formData || {})
-            });
-        }
-        
-        // נסיון שליחת אימיל פשוט
-        const sgMail = require('@sendgrid/mail');
-        sgMail.setApiKey(apiKey);
-        
-        const msg = {
-            to: 'yus2770@gmail.com', // ** החלף עם המייל שלך **
-            from: 'yus2770@gmail.com', // ** החלף עם המייל המאומת **
-            subject: `בדיקת הזמנה מ-${customerName}`,
-            text: `הזמנה חדשה התקבלה מ-${customerName}`
+        // שליחת אימיל דרך SendGrid API עם fetch
+        const emailData = {
+            personalizations: [{
+                to: [{ email: 'yus2770@gmail.com' }], // ** החלף עם המייל שלך **
+                subject: `הזמנה חדשה מ-${customerName}`
+            }],
+            from: { email: 'yus2770@gmail.com' }, // ** החלף עם המייל המאומת **
+            content: [{
+                type: 'text/html',
+                value: emailHTML
+            }]
         };
         
-        console.log('Sending email to:', msg.to);
+        console.log('שולח אימיל ל:', emailData.personalizations[0].to[0].email);
         
-        await sgMail.send(msg);
-        
-        console.log('Email sent successfully');
-        
-        return res.status(200).json({ 
-            success: true, 
-            message: 'אימיל נשלח בהצלחה!',
-            orderData: formData 
+        const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(emailData)
         });
         
-    } catch (error) {
-        console.error('Error details:', error);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('SendGrid Error:', errorText);
+            throw new Error(`SendGrid API Error: ${response.status} - ${errorText}`);
+        }
         
-        return res.status(500).json({ 
+        console.log('האימיל נשלח בהצלחה');
+        
+        res.status(200).json({ 
+            success: true, 
+            message: 'האימיל נשלח בהצלחה!',
+            orderData: formData 
+        });
+
+    } catch (error) {
+        console.error('שגיאה מפורטת:', error);
+        res.status(500).json({ 
             success: false, 
             error: 'שגיאה בשליחת האימיל',
             details: error.message
         });
     }
+}
+
+// פונקציה ליצירת HTML לאימיל
+function createEmailHTML(data, customerName) {
+    // פילטור המוצרים שנבחרו
+    const selectedProducts = [];
+    
+    Object.keys(data).forEach(key => {
+        if (key.startsWith('כמות_') && data[key]) {
+            const productType = key.replace('כמות_', '');
+            const weightKey = `משקל_${productType}`;
+            const notesKey = `הערות_${productType}`;
+            
+            selectedProducts.push({
+                name: productType.replace(/_/g, ' '),
+                quantity: data[key],
+                weight: data[weightKey] || '',
+                notes: data[notesKey] || ''
+            });
+        }
+    });
+
+    const customerCode = data.customerCode || data['קוד לקוח'] || '';
+    const deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
+    const orderNotes = data.orderNotes || data['הערות כלליות'] || '';
+
+    return `
+    <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; max-width: 800px; margin: 0 auto;">
+        <h1 style="color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px;">
+            הזמנה חדשה - מוצרי שייקביץ
+        </h1>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h2 style="color: #34495e; margin-top: 0;">פרטי הלקוח</h2>
+            <p><strong>שם לקוח:</strong> ${customerName}</p>
+            ${customerCode ? `<p><strong>קוד לקוח:</strong> ${customerCode}</p>` : ''}
+            ${deliveryDate ? `<p><strong>תאריך אספקה:</strong> ${formatDate(deliveryDate)}</p>` : ''}
+            <p><strong>תאריך ההזמנה:</strong> ${getCurrentDateTime()}</p>
+        </div>
+        
+        <h2 style="color: #34495e;">פרטי ההזמנה</h2>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+                <tr style="background-color: #34495e; color: white;">
+                    <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מוצר</th>
+                    <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">כמות</th>
+                    <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">משקל (ק״ג)</th>
+                    <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">הערות</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${selectedProducts.map(product => `
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">${product.name}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.quantity}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.weight}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">${product.notes}</td>
+                </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        
+        ${orderNotes ? `
+        <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #2c3e50; margin-top: 0;">הערות כלליות</h3>
+            <p>${orderNotes}</p>
+        </div>
+        ` : ''}
+        
+        <div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">
+            <p style="margin: 0; color: #155724;">
+                <strong>ההזמנה התקבלה בהצלחה!</strong><br>
+                פרטי ההזמנה מצורפים לעיל.
+            </p>
+        </div>
+    </div>
+    `;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('he-IL');
+}
+
+function getCurrentDateTime() {
+    const now = new Date();
+    return now.toLocaleString('he-IL');
 }
