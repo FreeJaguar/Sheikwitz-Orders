@@ -5,6 +5,9 @@
     }
   },
   "env": {
-    "SENDGRID_API_KEY": "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"
-  }
+    "SENDGRID_API_KEY": "@sendgrid_api_key"
+  },
+  "buildCommand": "echo 'No build required'",
+  "outputDirectory": "./",
+  "cleanUrls": true
 }
