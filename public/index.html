@@ -326,6 +326,240 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* תיקונים רספונסיביים מתקדמים */
+
+        /* עבור מסכים קטנים מאוד (טלפונים) */
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+                border-radius: 5px;
+            }
+            
+            h1 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .form-header {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .search-container {
+                padding: 10px;
+            }
+            
+            .category-header {
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            .category-header h3 {
+                font-size: 16px;
+            }
+            
+            .product-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+                padding: 10px 15px;
+            }
+            
+            .product-fields {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .product-fields input {
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .product-name {
+                font-size: 14px;
+                margin-bottom: 8px;
+                padding: 8px 0;
+            }
+            
+            input, textarea {
+                font-size: 16px;
+                padding: 12px;
+            }
+            
+            #submitBtn {
+                width: 100%;
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            /* תיקון טבלת הסיכום למסכים קטנים */
+            .summary-table {
+                font-size: 12px !important;
+            }
+            
+            .summary-table th,
+            .summary-table td {
+                padding: 8px 4px !important;
+                font-size: 12px !important;
+                word-break: break-word;
+            }
+            
+            .summary-table th:nth-child(1),
+            .summary-table td:nth-child(1) {
+                width: 40% !important;
+            }
+            
+            .summary-table th:nth-child(2),
+            .summary-table td:nth-child(2) {
+                width: 15% !important;
+            }
+            
+            .summary-table th:nth-child(3),
+            .summary-table td:nth-child(3) {
+                width: 20% !important;
+            }
+            
+            .summary-table th:nth-child(4),
+            .summary-table td:nth-child(4) {
+                width: 25% !important;
+            }
+        }
+
+        /* עבור טאבלטים (768px-1024px) */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .container {
+                margin: 15px;
+                padding: 25px;
+            }
+            
+            .form-header {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .product-row {
+                grid-template-columns: 250px 1fr;
+                gap: 15px;
+            }
+            
+            .product-fields {
+                grid-template-columns: 80px 100px 1fr;
+                gap: 12px;
+            }
+            
+            .summary-table th,
+            .summary-table td {
+                padding: 10px 8px !important;
+                font-size: 13px !important;
+            }
+        }
+
+        /* עבור מסכים גדולים (מעל 1024px) */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1400px;
+                padding: 30px;
+            }
+            
+            .form-header {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 25px;
+            }
+            
+            .product-row {
+                grid-template-columns: 300px 1fr;
+                gap: 25px;
+            }
+            
+            .product-fields {
+                grid-template-columns: 120px 140px 1fr;
+                gap: 15px;
+            }
+        }
+
+        /* תיקון נוסף לטבלת הסיכום - תצוגה רספונסיבית */
+        @media (max-width: 600px) {
+            .summary-table {
+                display: block !important;
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+                border: 1px solid #ddd !important;
+            }
+            
+            .summary-table thead,
+            .summary-table tbody,
+            .summary-table th,
+            .summary-table td,
+            .summary-table tr {
+                display: block !important;
+            }
+            
+            .summary-table thead tr {
+                position: absolute !important;
+                top: -9999px !important;
+                left: -9999px !important;
+            }
+            
+            .summary-table tr {
+                border: 1px solid #ddd !important;
+                margin-bottom: 10px !important;
+                padding: 10px !important;
+                border-radius: 5px !important;
+                background-color: #f9f9f9 !important;
+            }
+            
+            .summary-table td {
+                border: none !important;
+                position: relative !important;
+                padding-right: 50% !important;
+                text-align: right !important;
+                white-space: normal !important;
+                font-size: 14px !important;
+            }
+            
+            .summary-table td:before {
+                content: attr(data-label) ": " !important;
+                position: absolute !important;
+                right: 6px !important;
+                width: 45% !important;
+                text-align: right !important;
+                font-weight: bold !important;
+                color: #333 !important;
+            }
+        }
+
+        /* תיקונים נוספים לנוחות שימוש */
+        .category-header {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* שיפור נוסף לכפתורים */
+        @media (max-width: 768px) {
+            .category-header {
+                min-height: 50px;
+                align-items: center;
+            }
+            
+            .toggle-icon {
+                font-size: 24px;
+                min-width: 30px;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
