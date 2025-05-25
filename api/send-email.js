@@ -21,10 +21,13 @@ export default async function handler(req, res) {
         
         // בדיקה בסיסית של הנתונים
         const formData = req.body;
-        if (!formData || !formData.customerName) {
+        const customerName = formData.customerName || formData['שם לקוח'];
+        
+        if (!formData || !customerName) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'נתונים חסרים - שם לקוח נדרש' 
+                error: 'נתונים חסרים - שם לקוח נדרש',
+                received: Object.keys(formData || {})
             });
         }
         
@@ -35,8 +38,8 @@ export default async function handler(req, res) {
         const msg = {
             to: 'yus2770@gmail.com', // ** החלף עם המייל שלך **
             from: 'yus2770@gmail.com', // ** החלף עם המייל המאומת **
-            subject: `בדיקת הזמנה מ-${formData.customerName}`,
-            text: `הזמנה חדשה התקבלה מ-${formData.customerName}`
+            subject: `בדיקת הזמנה מ-${customerName}`,
+            text: `הזמנה חדשה התקבלה מ-${customerName}`
         };
         
         console.log('Sending email to:', msg.to);
