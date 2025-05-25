@@ -177,40 +177,96 @@ async function createPDF(data, customerName) {
     // יצירת HTML עבור ה-PDF
     const pdfHTML = createPDFHTML(data, customerName);
     
-    // המרת HTML ל-PDF באמצעות Puppeteer או ספרייה אחרת
-    // כיוון ש-Vercel לא תומך בספריות כבדות כמו Puppeteer, נשתמש בפתרון חלופי
+    // בדיקה איזה API להשתמש
+    const apiKey = process.env.HTML2PDF_API_KEY;
+    const pdfShiftKey = process.env.PDFSHIFT_API_KEY;
     
     try {
-        // שימוש ב-API חיצוני ליצירת PDF
-        const pdfResponse = await fetch('https://api.html2pdf.app/v1/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // אם יש לך API key, הוסף אותו כאן
-                "url": "http://www.example.com",
-                "apiKey": "Kwn4qbDbc1PEpSbPffpvCUExGVQP5TsXbujYggth8tpO920obDFwvXysS9ILcJMc"
-
-            },
-            body: JSON.stringify({
-                html: pdfHTML,
-                options: {
-                    format: 'A4',
-                    printBackground: true,
-                    margin: {
-                        top: '20mm',
-                        bottom: '20mm',
-                        left: '20mm',
-                        right: '20mm'
-                    }
-                }
-            })
-        });
+        let pdfBuffer;
         
-        if (!pdfResponse.ok) {
-            throw new Error('Failed to generate PDF');
+        if (pdfShiftKey) {
+            // אפשרות 1: PDFShift (מומלץ - תומך מצוין בעברית)
+            console.log('Using PDFShift API');
+            const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Basic ' + Buffer.from(pdfShiftKey + ':').toString('base64'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    source: pdfHTML,
+                    format: 'A4',
+                    margin: '20mm',
+                    landscape: false,
+                    use_print: true
+                })
+            });
+            
+            if (!pdfResponse.ok) {
+                throw new Error(`PDFShift Error: ${pdfResponse.status}`);
+            }
+            
+            pdfBuffer = await pdfResponse.buffer();
+            
+        } else if (apiKey) {
+            // אפשרות 2: HTML2PDF.app
+            console.log('Using HTML2PDF.app API');
+            const pdfResponse = await fetch('https://api.html2pdf.app/v1/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authentication': apiKey // או 'X-API-KEY': apiKey
+                },
+                body: JSON.stringify({
+                    html: pdfHTML,
+                    options: {
+                        format: 'A4',
+                        printBackground: true,
+                        margin: {
+                            top: '20mm',
+                            bottom: '20mm',
+                            left: '20mm',
+                            right: '20mm'
+                        }
+                    }
+                })
+            });
+            
+            if (!pdfResponse.ok) {
+                throw new Error(`HTML2PDF Error: ${pdfResponse.status}`);
+            }
+            
+            pdfBuffer = await pdfResponse.buffer();
+            
+        } else {
+            // אפשרות 3: API Ninjas HTML to PDF (חינמי עד 50,000 בקשות לחודש)
+            console.log('Using API Ninjas');
+            const apiNinjasKey = process.env.API_NINJAS_KEY;
+            
+            if (apiNinjasKey) {
+                const pdfResponse = await fetch('https://api.api-ninjas.com/v1/htmltopdf', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': apiNinjasKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        html: pdfHTML
+                    })
+                });
+                
+                if (!pdfResponse.ok) {
+                    throw new Error(`API Ninjas Error: ${pdfResponse.status}`);
+                }
+                
+                pdfBuffer = await pdfResponse.buffer();
+            } else {
+                // אם אין API keys, נשתמש בפתרון פשוט
+                console.log('No PDF API key found, using simple PDF');
+                return createSimplePDF(data, customerName);
+            }
         }
         
-        const pdfBuffer = await pdfResponse.buffer();
         return pdfBuffer;
         
     } catch (error) {
