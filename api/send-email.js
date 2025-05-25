@@ -1,6 +1,4 @@
 const sgMail = require('@sendgrid/mail');
-const puppeteer = require('puppeteer-core');
-const chromium = require('@sparticuz/chromium');
 
 // הגדרת SendGrid API Key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -12,31 +10,31 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log('קיבלנו בקשה:', req.body);
+        
         const formData = req.body;
+        
+        // בדיקה בסיסית
+        if (!formData.customerName) {
+            throw new Error('שם לקוח חסר');
+        }
         
         // יצירת HTML לאימיל
         const emailHTML = createEmailHTML(formData);
         
-        // יצירת PDF
-        const pdfBuffer = await createPDF(emailHTML);
-        
-        // שליחת האימיל עם PDF מצורף
+        // שליחת האימיל (ללא PDF בינתיים)
         const msg = {
             to: 'yus2770@gmail.com', // ** החלף עם המייל שלך **
             from: 'yus2770@gmail.com', // ** החלף עם המייל המאומת בSendGrid **
             subject: `הזמנה חדשה מ-${formData.customerName}`,
-            html: emailHTML,
-            attachments: [
-                {
-                    content: pdfBuffer.toString('base64'),
-                    filename: `הזמנה-${formData.customerName}-${getCurrentDate()}.pdf`,
-                    type: 'application/pdf',
-                    disposition: 'attachment'
-                }
-            ]
+            html: emailHTML
         };
 
+        console.log('שולח אימיל:', msg);
+        
         await sgMail.send(msg);
+        
+        console.log('האימיל נשלח בהצלחה');
         
         res.status(200).json({ 
             success: true, 
@@ -45,7 +43,7 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error('שגיאה מפורטת:', error);
         res.status(500).json({ 
             success: false, 
             error: 'שגיאה בשליחת האימיל', 
@@ -84,13 +82,8 @@ function createEmailHTML(data) {
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h2 style="color: #34495e; margin-top: 0;">פרטי הלקוח</h2>
             <p><strong>שם לקוח:</strong> ${data.customerName}</p>
-            if (data.customerCode) {
-            html += `<p><strong>קוד לקוח:</strong> ${data.customerCode}</p>`;
-        }
-        
-        if (data.deliveryDate) {
-            html += `<p><strong>תאריך אספקה:</strong> ${formatDate(data.deliveryDate)}</p>`;
-        }
+            ${data.customerCode ? `<p><strong>קוד לקוח:</strong> ${data.customerCode}</p>` : ''}
+            ${data.deliveryDate ? `<p><strong>תאריך אספקה:</strong> ${formatDate(data.deliveryDate)}</p>` : ''}
             <p><strong>תאריך ההזמנה:</strong> ${getCurrentDateTime()}</p>
         </div>
         
@@ -116,69 +109,21 @@ function createEmailHTML(data) {
             </tbody>
         </table>
         
-        if (data.orderNotes) {
-            html += `
+        ${data.orderNotes ? `
         <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #2c3e50; margin-top: 0;">הערות כלליות</h3>
             <p>${data.orderNotes}</p>
         </div>
-        `;
-        }
+        ` : ''}
         
         <div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">
             <p style="margin: 0; color: #155724;">
                 <strong>ההזמנה התקבלה בהצלחה!</strong><br>
-                קובץ PDF מפורט מצורף להודעה זו.
+                פרטי ההזמנה מצורפים לעיל.
             </p>
         </div>
     </div>
     `;
-}
-
-// פונקציה ליצירת PDF
-async function createPDF(htmlContent) {
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-    });
-    
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    
-    const pdf = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-            top: '20mm',
-            right: '15mm',
-            bottom: '20mm',
-            left: '15mm'
-        }
-    });
-    
-    await browser.close();
-    return pdf;
-}
-
-// פונקציה להמרת שם מוצר
-function getProductName(productType) {
-    const productNames = {
-        'turkey_red': 'הודו אדום',
-        'turkey_white': 'הודו לבן', 
-        'turkey_ground': 'הודו טחון',
-        'beef_ground': 'טחון בקר',
-        'beef_entrecote': 'אנטריקוט',
-        'beef_sirloin': 'סינטה',
-        'chicken_whole': 'עוף שלם',
-        'chicken_breast': 'חזה עוף',
-        'chicken_drumsticks': 'שוקיים',
-        'lamb_shoulder': 'כתף כבש',
-        'lamb_ribs': 'צלעות כבש'
-    };
-    
-    return productNames[productType] || productType;
 }
 
 // פונקציה לפורמט תאריך
@@ -191,10 +136,4 @@ function formatDate(dateString) {
 function getCurrentDateTime() {
     const now = new Date();
     return now.toLocaleString('he-IL');
-}
-
-// פונקציה לתאריך נוכחי (לשם הקובץ)
-function getCurrentDate() {
-    const now = new Date();
-    return now.toLocaleDateString('he-IL').replace(/\//g, '-');
 }
