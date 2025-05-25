@@ -187,6 +187,9 @@ async function createPDF(data, customerName) {
             headers: {
                 'Content-Type': 'application/json',
                 // אם יש לך API key, הוסף אותו כאן
+                "url": "http://www.example.com",
+                "apiKey": "Kwn4qbDbc1PEpSbPffpvCUExGVQP5TsXbujYggth8tpO920obDFwvXysS9ILcJMc"
+
             },
             body: JSON.stringify({
                 html: pdfHTML,
