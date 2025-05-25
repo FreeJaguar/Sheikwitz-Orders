@@ -31,7 +31,11 @@ export default async function handler(req, res) {
         // יצירת HTML לאימיל
         const emailHTML = createEmailHTML(formData, customerName);
         
-        // שליחת אימיל דרך SendGrid API עם fetch
+        // יצירת PDF
+        const pdfBuffer = await createPDF(formData, customerName);
+        const pdfBase64 = pdfBuffer.toString('base64');
+        
+        // שליחת אימיל דרך SendGrid API עם PDF מצורף
         const emailData = {
             personalizations: [{
                 to: [{ email: 'yus2770@gmail.com' }], // ** החלף עם המייל שלך **
@@ -41,6 +45,12 @@ export default async function handler(req, res) {
             content: [{
                 type: 'text/html',
                 value: emailHTML
+            }],
+            attachments: [{
+                content: pdfBase64,
+                filename: `הזמנה_${customerName}_${new Date().toLocaleDateString('he-IL').replace(/\//g, '-')}.pdf`,
+                type: 'application/pdf',
+                disposition: 'attachment'
             }]
         };
         
@@ -149,11 +159,279 @@ function createEmailHTML(data, customerName) {
         <div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">
             <p style="margin: 0; color: #155724;">
                 <strong>ההזמנה התקבלה בהצלחה!</strong><br>
-                פרטי ההזמנה מצורפים לעיל.
+                קובץ PDF של ההזמנה מצורף למייל זה.
+            </p>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
+            <p style="margin: 0; color: #666;">
+                <strong>לתשומת לבך:</strong> מצורף קובץ PDF להדפסה נוחה של ההזמנה.
             </p>
         </div>
     </div>
     `;
+}
+
+// פונקציה ליצירת PDF
+async function createPDF(data, customerName) {
+    // יצירת HTML עבור ה-PDF
+    const pdfHTML = createPDFHTML(data, customerName);
+    
+    // המרת HTML ל-PDF באמצעות Puppeteer או ספרייה אחרת
+    // כיוון ש-Vercel לא תומך בספריות כבדות כמו Puppeteer, נשתמש בפתרון חלופי
+    
+    try {
+        // שימוש ב-API חיצוני ליצירת PDF
+        const pdfResponse = await fetch('https://api.html2pdf.app/v1/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // אם יש לך API key, הוסף אותו כאן
+            },
+            body: JSON.stringify({
+                html: pdfHTML,
+                options: {
+                    format: 'A4',
+                    printBackground: true,
+                    margin: {
+                        top: '20mm',
+                        bottom: '20mm',
+                        left: '20mm',
+                        right: '20mm'
+                    }
+                }
+            })
+        });
+        
+        if (!pdfResponse.ok) {
+            throw new Error('Failed to generate PDF');
+        }
+        
+        const pdfBuffer = await pdfResponse.buffer();
+        return pdfBuffer;
+        
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        // אם יצירת ה-PDF נכשלה, ניצור PDF פשוט עם טקסט בלבד
+        return createSimplePDF(data, customerName);
+    }
+}
+
+// יצירת HTML עבור ה-PDF
+function createPDFHTML(data, customerName) {
+    const selectedProducts = [];
+    
+    Object.keys(data).forEach(key => {
+        if (key.startsWith('כמות_') && data[key]) {
+            const productType = key.replace('כמות_', '');
+            const weightKey = `משקל_${productType}`;
+            const notesKey = `הערות_${productType}`;
+            
+            selectedProducts.push({
+                name: productType.replace(/_/g, ' '),
+                quantity: data[key],
+                weight: data[weightKey] || '',
+                notes: data[notesKey] || ''
+            });
+        }
+    });
+
+    const customerCode = data.customerCode || data['קוד לקוח'] || '';
+    const deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
+    const orderNotes = data.orderNotes || data['הערות כלליות'] || '';
+
+    return `
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>הזמנה - ${customerName}</title>
+        <style>
+            @page {
+                size: A4;
+                margin: 20mm;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                direction: rtl;
+                text-align: right;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 3px solid #2c3e50;
+            }
+            .logo {
+                font-size: 32px;
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 10px;
+            }
+            .title {
+                font-size: 24px;
+                color: #34495e;
+            }
+            .customer-info {
+                background-color: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 30px;
+            }
+            .customer-info h2 {
+                margin-top: 0;
+                color: #2c3e50;
+            }
+            .info-row {
+                margin: 10px 0;
+                font-size: 16px;
+            }
+            .info-row strong {
+                display: inline-block;
+                width: 150px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            th {
+                background-color: #34495e;
+                color: white;
+                padding: 12px;
+                text-align: right;
+                border: 1px solid #ddd;
+            }
+            td {
+                padding: 10px;
+                border: 1px solid #ddd;
+            }
+            tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            .quantity-cell, .weight-cell {
+                text-align: center;
+                font-weight: bold;
+            }
+            .notes-section {
+                background-color: #fff3cd;
+                padding: 15px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border: 1px solid #ffc107;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 2px solid #ddd;
+                color: #666;
+            }
+            @media print {
+                .pagebreak {
+                    page-break-before: always;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="logo">מוצרי שייקביץ</div>
+            <div class="title">טופס הזמנה</div>
+        </div>
+        
+        <div class="customer-info">
+            <h2>פרטי הלקוח</h2>
+            <div class="info-row"><strong>שם לקוח:</strong> ${customerName}</div>
+            ${customerCode ? `<div class="info-row"><strong>קוד לקוח:</strong> ${customerCode}</div>` : ''}
+            ${deliveryDate ? `<div class="info-row"><strong>תאריך אספקה:</strong> ${formatDate(deliveryDate)}</div>` : ''}
+            <div class="info-row"><strong>תאריך ההזמנה:</strong> ${getCurrentDateTime()}</div>
+        </div>
+        
+        <h2>פרטי ההזמנה</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 30%;">מוצר</th>
+                    <th style="width: 15%;">כמות</th>
+                    <th style="width: 15%;">משקל (ק״ג)</th>
+                    <th style="width: 40%;">הערות</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${selectedProducts.map(product => `
+                <tr>
+                    <td style="font-weight: bold;">${product.name}</td>
+                    <td class="quantity-cell">${product.quantity}</td>
+                    <td class="weight-cell">${product.weight}</td>
+                    <td>${product.notes}</td>
+                </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        
+        ${orderNotes ? `
+        <div class="notes-section">
+            <h3>הערות כלליות</h3>
+            <p>${orderNotes}</p>
+        </div>
+        ` : ''}
+        
+        <div class="footer">
+            <p>מסמך זה הופק אוטומטית מטופס ההזמנה המקוון</p>
+            <p>${new Date().toLocaleDateString('he-IL')} | ${new Date().toLocaleTimeString('he-IL')}</p>
+        </div>
+    </body>
+    </html>
+    `;
+}
+
+// יצירת PDF פשוט כפתרון חלופי
+function createSimplePDF(data, customerName) {
+    // יצירת טקסט פשוט של ההזמנה
+    let content = `הזמנה - מוצרי שייקביץ\n`;
+    content += `========================\n\n`;
+    content += `שם לקוח: ${customerName}\n`;
+    
+    if (data.customerCode) {
+        content += `קוד לקוח: ${data.customerCode}\n`;
+    }
+    
+    if (data.deliveryDate) {
+        content += `תאריך אספקה: ${formatDate(data.deliveryDate)}\n`;
+    }
+    
+    content += `תאריך הזמנה: ${getCurrentDateTime()}\n\n`;
+    content += `פרטי ההזמנה:\n`;
+    content += `-------------\n`;
+    
+    Object.keys(data).forEach(key => {
+        if (key.startsWith('כמות_') && data[key]) {
+            const productType = key.replace('כמות_', '');
+            const weightKey = `משקל_${productType}`;
+            const notesKey = `הערות_${productType}`;
+            
+            content += `\n${productType.replace(/_/g, ' ')}:\n`;
+            content += `  כמות: ${data[key]}\n`;
+            if (data[weightKey]) {
+                content += `  משקל: ${data[weightKey]} ק"ג\n`;
+            }
+            if (data[notesKey]) {
+                content += `  הערות: ${data[notesKey]}\n`;
+            }
+        }
+    });
+    
+    if (data.orderNotes) {
+        content += `\n\nהערות כלליות:\n${data.orderNotes}\n`;
+    }
+    
+    // המרת הטקסט ל-Buffer
+    return Buffer.from(content, 'utf8');
 }
 
 function formatDate(dateString) {
