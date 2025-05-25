@@ -1,14 +1,11 @@
 {
   "name": "sheikwitz-orders",
   "version": "1.0.0",
-  "description": "טופס הזמנת מוצרי בשר עם שליחת PDF באימיל",
+  "description": "טופס הזמנת מוצרי בשר עם שליחת אימיל",
   "main": "index.html",
   "scripts": {
     "dev": "vercel dev",
     "build": "echo 'No build step required'"
-  },
-  "dependencies": {
-    "@sendgrid/mail": "^7.7.0"
   },
   "engines": {
     "node": "18.x"
