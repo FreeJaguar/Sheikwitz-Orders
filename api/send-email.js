@@ -34,24 +34,37 @@ export default async function handler(req, res) {
         // יצירת PDF
         const pdfBuffer = await createPDF(emailHTML, customerName);
         
-        // שליחת אימיל דרך SendGrid API עם PDF מצורף
+        // הכנת נתוני האימיל
         const emailData = {
             personalizations: [{
-                to: [{ email: 'yus2770@gmail.com' }], // ** החלף עם המייל שלך **
-                subject: `הזמנה חדשה מ-${customerName}`
+                to: [{ email: 'your-email@example.com' }], // ** החלף עם המייל שלך **
+                subject: `פנייה עסקית - ${customerName}`
             }],
-            from: { email: 'yus2770@gmail.com' }, // ** החלף עם המייל המאומת **
-            content: [{
-                type: 'text/html',
-                value: emailHTML
-            }],
-            attachments: [{
+            from: { 
+                email: 'your-verified-email@example.com', // ** החלף עם המייל המאומת **
+                name: 'מערכת שייקביץ'
+            },
+            content: [
+                {
+                    type: 'text/plain',
+                    value: `פנייה עסקית מ-${customerName}\n\nפרטי הלקוח:\nשם: ${customerName}\n${customerCode ? `קוד: ${customerCode}\n` : ''}${deliveryDate ? `תאריך אספקה: ${deliveryDate}\n` : ''}\n\nהפרטים המלאים מצורפים.`
+                },
+                {
+                    type: 'text/html',
+                    value: emailHTML
+                }
+            ]
+        };
+        
+        // הוספת PDF אם זמין
+        if (pdfBuffer && pdfBuffer.length > 0) {
+            emailData.attachments = [{
                 content: pdfBuffer.toString('base64'),
-                filename: `הזמנה-${customerName}-${getCurrentDateForFile()}.pdf`,
+                filename: `פנייה-${customerName}-${getCurrentDateForFile()}.pdf`,
                 type: 'application/pdf',
                 disposition: 'attachment'
-            }]
-        };
+            }];
+        }
         
         console.log('שולח אימיל עם PDF ל:', emailDataexport default async function handler(req, res) {
     // אפשר רק POST requests
@@ -99,7 +112,7 @@ export default async function handler(req, res) {
             }]
         };
         
-        console.log('שולח אימיל עם PDF ל:', emailData.personalizations[0].to[0].email);
+        console.log('שולח אימיל ל:', emailData.personalizations[0].to[0].email);
         
         const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
             method: 'POST',
@@ -116,11 +129,15 @@ export default async function handler(req, res) {
             throw new Error(`SendGrid API Error: ${response.status} - ${errorText}`);
         }
         
-        console.log('האימיל עם PDF נשלח בהצלחה');
+        const successMessage = pdfBuffer && pdfBuffer.length > 0 
+            ? 'האימיל עם PDF נשלח בהצלחה!' 
+            : 'האימיל נשלח בהצלחה! (ללא PDF)';
+            
+        console.log(successMessage);
         
         res.status(200).json({ 
             success: true, 
-            message: 'האימיל עם PDF נשלח בהצלחה!',
+            message: successMessage,
             orderData: formData 
         });
 
@@ -134,63 +151,35 @@ export default async function handler(req, res) {
     }
 }
 
-// פונקציה ליצירת PDF
+// פונקציה ליצירת PDF פשוט
 async function createPDF(htmlContent, customerName) {
     try {
-        // שימוש ב-API חיצוני ליצירת PDF
-        const response = await fetch('https://api.html-css-to-pdf.com/v1/generate', {
+        // יצירת PDF פשוט עם HTML-to-PDF service
+        const response = await fetch('https://htmlpdfapi.com/api/v1/pdf', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 html: htmlContent,
-                css: `
-                    body { 
-                        font-family: Arial, sans-serif; 
-                        direction: rtl; 
-                        text-align: right; 
-                        margin: 20px;
-                        font-size: 12px;
-                    }
-                    table { 
-                        width: 100%; 
-                        border-collapse: collapse; 
-                        margin: 20px 0; 
-                    }
-                    th, td { 
-                        border: 1px solid #333; 
-                        padding: 8px; 
-                        text-align: right; 
-                    }
-                    th { 
-                        background-color: #f0f0f0; 
-                        font-weight: bold; 
-                    }
-                `,
                 options: {
                     format: 'A4',
-                    margin: {
-                        top: '20mm',
-                        right: '15mm',
-                        bottom: '20mm',
-                        left: '15mm'
-                    }
+                    margin: '20mm'
                 }
             })
         });
 
-        if (!response.ok) {
-            throw new Error('שגיאה ביצירת PDF');
+        if (response.ok) {
+            const pdfBuffer = Buffer.from(await response.arrayBuffer());
+            return pdfBuffer;
+        } else {
+            console.log('PDF service not available, sending email without PDF');
+            return null; // אם יש בעיה עם PDF, נשלח בלי PDF
         }
-
-        const pdfBuffer = Buffer.from(await response.arrayBuffer());
-        return pdfBuffer;
         
     } catch (error) {
         console.error('שגיאה ביצירת PDF:', error);
-        // אם יש בעיה עם PDF, נחזיר buffer ריק
-        return Buffer.from('');
+        return null; // אם יש בעיה, נשלח בלי PDF
     }
 }
 
@@ -234,7 +223,7 @@ function createEmailHTML(data, customerName) {
     return `
     <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #2c3e50; text-align: center; border-bottom: 3px solid #3498db; padding-bottom: 15px;">
-            הזמנה חדשה - מוצרי שייקביץ
+            פנייה עסקית - מוצרי שייקביץ
         </h1>
         
         <div style="background-color: #e8f4f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -258,8 +247,8 @@ function createEmailHTML(data, customerName) {
         ` : ''}
         
         <div style="margin-top: 30px; padding: 20px; background-color: #d4edda; border-radius: 8px; border: 1px solid #c3e6cb; text-align: center;">
-            <h3 style="color: #155724; margin: 0;">ההזמנה התקבלה בהצלחה!</h3>
-            <p style="color: #155724; margin: 10px 0 0 0;">פרטי ההזמנה מצורפים כקובץ PDF.</p>
+            <h3 style="color: #155724; margin: 0;">הפנייה התקבלה בהצלחה</h3>
+            <p style="color: #155724; margin: 10px 0 0 0;">פרטי הפנייה נשלחו אליך באימיל.</p>
         </div>
     </div>
     `;
