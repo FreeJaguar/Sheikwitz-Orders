@@ -286,42 +286,42 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // יצירת תוכן סיכום עם טבלה מסודרת
         let html = `
-            <div style="text-align: right;">
-                <h3 style="color: #2c3e50; margin-bottom: 15px;">פרטי הלקוח</h3>
-                <p><strong>שם לקוח:</strong> ${orderData.customerName || ''}</p>
+            <div style="text-align: right; font-family: Arial, sans-serif;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px;">פרטי הלקוח</h3>
+                <p style="margin: 8px 0; font-size: 16px;"><strong>שם לקוח:</strong> ${orderData.customerName || ''}</p>
         `;
         
         if (orderData.customerCode) {
-            html += `<p><strong>קוד לקוח:</strong> ${orderData.customerCode}</p>`;
+            html += `<p style="margin: 8px 0; font-size: 16px;"><strong>קוד לקוח:</strong> ${orderData.customerCode}</p>`;
         }
         
         if (orderData.deliveryDate) {
             const date = new Date(orderData.deliveryDate);
-            html += `<p><strong>תאריך אספקה:</strong> ${date.toLocaleDateString('he-IL')}</p>`;
+            html += `<p style="margin: 8px 0; font-size: 16px;"><strong>תאריך אספקה:</strong> ${date.toLocaleDateString('he-IL')}</p>`;
         }
         
         html += `
-                <h3 style="color: #2c3e50; margin: 20px 0 15px 0;">פרטי ההזמנה</h3>
-                <table class="summary-table" style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                <h3 style="color: #2c3e50; margin: 30px 0 15px 0; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px;">פרטי ההזמנה</h3>
+                <table style="width: 100%; border-collapse: collapse; margin: 15px 0; font-family: Arial, sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                     <thead>
-                        <tr style="background-color: #34495e; color: white;">
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מוצר</th>
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center; width: 80px;">כמות</th>
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center; width: 100px;">משקל (ק"ג)</th>
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">הערות</th>
+                        <tr>
+                            <th style="background-color: #34495e; color: white; padding: 15px 12px; border: 2px solid #2c3e50; text-align: right; font-weight: bold; font-size: 14px;">מוצר</th>
+                            <th style="background-color: #34495e; color: white; padding: 15px 12px; border: 2px solid #2c3e50; text-align: center; font-weight: bold; font-size: 14px; width: 80px;">כמות</th>
+                            <th style="background-color: #34495e; color: white; padding: 15px 12px; border: 2px solid #2c3e50; text-align: center; font-weight: bold; font-size: 14px; width: 100px;">משקל (ק"ג)</th>
+                            <th style="background-color: #34495e; color: white; padding: 15px 12px; border: 2px solid #2c3e50; text-align: right; font-weight: bold; font-size: 14px;">הערות</th>
                         </tr>
                     </thead>
                     <tbody>
         `;
         
         selectedProducts.forEach((product, index) => {
-            const bgColor = index % 2 === 0 ? '#f9f9f9' : '#ffffff';
+            const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
             html += `
                         <tr style="background-color: ${bgColor};">
-                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; text-align: right;">${product.name}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.quantity}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.weight || '-'}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${product.notes || '-'}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: right; font-weight: bold; font-size: 14px; color: #2c3e50;">${product.name}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-size: 14px; font-weight: bold; color: #27ae60;">${product.quantity}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-size: 14px; color: #2980b9;">${product.weight || '-'}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd; text-align: right; font-size: 14px; color: #555;">${product.notes || '-'}</td>
                         </tr>
             `;
         });
@@ -333,14 +333,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (orderData.orderNotes) {
             html += `
-                <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                    <h4 style="color: #2c3e50; margin-top: 0;">הערות כלליות:</h4>
-                    <p>${orderData.orderNotes}</p>
+                <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #ffc107;">
+                    <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 16px;">הערות כלליות:</h4>
+                    <p style="color: #856404; font-size: 14px; margin: 0;">${orderData.orderNotes}</p>
                 </div>
             `;
         }
         
-        html += '</div>';
+        html += `
+                <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #d4edda; border-radius: 8px; border: 1px solid #c3e6cb;">
+                    <p style="color: #155724; font-weight: bold; margin: 0;">ההזמנה התקבלה בהצלחה!</p>
+                    <p style="color: #155724; font-size: 14px; margin: 5px 0 0 0;">תאריך ההזמנה: ${new Date().toLocaleString('he-IL')}</p>
+                </div>
+            </div>
+        `;
         
         summaryContent.innerHTML = html;
         summaryElement.style.display = 'block';
