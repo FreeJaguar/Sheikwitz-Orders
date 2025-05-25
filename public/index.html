@@ -4,30 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>הזמנת מוצרי שייקביץ</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <style>
-        /* תוספת סגנון לטבלת סיכום */
-        .summary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-        
-        .summary-table th, .summary-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: right;
-        }
-        
-        .summary-table th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-        }
-        
-        .summary-table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -122,8 +100,8 @@
         }
 
         .category-header {
-            background-color: #34495e;
-            color: white;
+            background-color: #e8f4f8;
+            color: #333;
             padding: 15px 20px;
             cursor: pointer;
             display: flex;
@@ -133,7 +111,7 @@
         }
 
         .category-header:hover {
-            background-color: #2c3e50;
+            background-color: #d1e7dd;
         }
 
         .category-content {
@@ -243,18 +221,11 @@
             font-style: italic;
         }
 
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
         .success-message, .error-message {
             padding: 15px;
             border-radius: 5px;
             margin-top: 20px;
             text-align: center;
-            display: none;
         }
 
         .success-message {
@@ -267,6 +238,77 @@
             background-color: #f8d7da;
             border: 1px solid #f5c6cb;
             color: #721c24;
+        }
+
+        /* תיקון CSS לטבלת הסיכום */
+        .summary-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 15px 0 !important;
+            font-family: Arial, sans-serif !important;
+        }
+
+        .summary-table th {
+            border: 2px solid #333 !important;
+            padding: 12px !important;
+            background-color: #34495e !important;
+            color: white !important;
+            font-weight: bold !important;
+            text-align: right !important;
+            white-space: nowrap !important;
+            font-size: 14px !important;
+        }
+
+        .summary-table td {
+            border: 1px solid #ddd !important;
+            padding: 10px !important;
+            text-align: right !important;
+            vertical-align: top !important;
+            word-wrap: break-word !important;
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+        }
+
+        /* עמודת כמות */
+        .summary-table th:nth-child(2),
+        .summary-table td:nth-child(2) {
+            width: 80px !important;
+            text-align: center !important;
+            min-width: 80px !important;
+        }
+
+        /* עמודת משקל */
+        .summary-table th:nth-child(3),
+        .summary-table td:nth-child(3) {
+            width: 100px !important;
+            text-align: center !important;
+            min-width: 100px !important;
+        }
+
+        /* עמודת מוצר */
+        .summary-table th:nth-child(1),
+        .summary-table td:nth-child(1) {
+            width: 30% !important;
+            font-weight: bold !important;
+        }
+
+        /* עמודת הערות */
+        .summary-table th:nth-child(4),
+        .summary-table td:nth-child(4) {
+            width: auto !important;
+        }
+
+        .summary-table tr:nth-child(even) td {
+            background-color: #f9f9f9 !important;
+        }
+
+        .summary-table tr:nth-child(odd) td {
+            background-color: #ffffff !important;
+        }
+
+        .summary-table tbody tr:hover td {
+            background-color: #e8f4f8 !important;
         }
 
         @media (max-width: 768px) {
@@ -284,77 +326,6 @@
                 grid-template-columns: 1fr;
             }
         }
-	/* הוסף את הקוד הזה לתוך ה-<style> ב-index.html */
-
-	.summary-table {
-	    width: 100% !important;
-	    border-collapse: collapse !important;
-	    table-layout: fixed !important;
-	    margin: 15px 0 !important;
-	    font-family: Arial, sans-serif !important;
-	}
-	
-	.summary-table th {
-	    border: 2px solid #333 !important;
-	    padding: 12px !important;
-	    background-color: #34495e !important;
-	    color: white !important;
-	    font-weight: bold !important;
-	    text-align: right !important;
-	    white-space: nowrap !important;
-	    font-size: 14px !important;
-	}
-	
-	.summary-table td {
-	    border: 1px solid #ddd !important;
-	    padding: 10px !important;
-	    text-align: right !important;
-	    vertical-align: top !important;
-	    word-wrap: break-word !important;
-	    font-size: 14px !important;
-	    line-height: 1.4 !important;
-	}
-	
-	/* עמודת כמות */
-	.summary-table th:nth-child(2),
-	.summary-table td:nth-child(2) {
-	    width: 80px !important;
-	    text-align: center !important;
-	    min-width: 80px !important;
-	}
-	
-	/* עמודת משקל */
-	.summary-table th:nth-child(3),
-	.summary-table td:nth-child(3) {
-	    width: 100px !important;
-	    text-align: center !important;
-	    min-width: 100px !important;
-	}
-	
-	/* עמודת מוצר */
-	.summary-table th:nth-child(1),
-	.summary-table td:nth-child(1) {
-	    width: 30% !important;
-	    font-weight: bold !important;
-	}
-	
-	/* עמודת הערות */
-	.summary-table th:nth-child(4),
-	.summary-table td:nth-child(4) {
-	    width: auto !important;
-	}
-	
-	.summary-table tr:nth-child(even) td {
-	    background-color: #f9f9f9 !important;
-	}
-	
-	.summary-table tr:nth-child(odd) td {
-	    background-color: #ffffff !important;
-	}
-	
-	.summary-table tbody tr:hover td {
-	    background-color: #e8f4f8 !important;
-	}
     </style>
 </head>
 <body>
@@ -1366,7 +1337,7 @@
             <!-- הערות כלליות -->
             <div class="general-notes">
                 <label for="orderNotes">הערות כלליות להזמנה:</label>
-                <textarea id="orderNotes" name="הערות_כלליות" rows="4"></textarea>
+                <textarea id="orderNotes" name="orderNotes" rows="4"></textarea>
             </div>
 
             <!-- כפתור שליחה -->
