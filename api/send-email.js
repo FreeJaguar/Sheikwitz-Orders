@@ -1,4 +1,162 @@
-export default async function handler(req, res) {
+// יצירת HTML עבור ה-PDF עם ארגון לפי קטגוריות
+function createPDFHTML(data, customerName) {
+    // ארגון המוצרים לפי קטגוריות
+    const organizedProducts = {};
+    
+    Object.keys(data).forEach(key => {
+        if (key.startsWith('כמות_') && data[key]) {
+            const productType = key.replace('כמות_', '');
+            const weightKey = `משקל_${productType}`;
+            const notesKey = `הערות_${productType}`;
+            
+            const product = {
+                name: productType.replace(/_/g, ' '),
+                quantity: data[key],
+                weight: data[weightKey] || '',
+                notes: data[notesKey] || ''
+            };
+            
+            // מציאת הקטגוריה המתאימה למוצר
+            let categoryFound = false;
+            for (const [categoryName, categoryProducts] of Object.entries(CATEGORIES)) {
+                if (categoryProducts.includes(productType)) {
+                    if (!organizedProducts[categoryName]) {
+                        organizedProducts[categoryName] = [];
+                    }
+                    organizedProducts[categoryName].push(product);
+                    categoryFound = true;
+                    break;
+                }
+            }
+            
+            // אם לא נמצאה קטגוריה, הוסף לקטגוריה כללית
+            if (!categoryFound) {
+                if (!organizedProducts['אחרים']) {
+                    organizedProducts['אחרים'] = [];
+                }
+                organizedProducts['אחרים'].push(product);
+            }
+        }
+    });
+
+    const customerCode = data.customerCode || data['קוד לקוח'] || '';
+    const deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
+    const orderNotes = data.orderNotes || data['הערות כלליות'] || '';
+
+    let html = `
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>הזמנה - ${customerName}</title>
+        <style>
+            @page {
+                size: A4;
+                margin: 20mm;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                direction: rtl;
+                text-align: right;
+                margin: 0;
+                padding: 0;
+                color: #333;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 3px solid #2c3e50;
+            }
+            .logo {
+                font-size: 32px;
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 10px;
+            }
+            .title {
+                font-size: 24px;
+                color: #34495e;
+            }
+            .customer-info {
+                background-color: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 30px;
+            }
+            .customer-info h2 {
+                margin-top: 0;
+                color: #2c3e50;
+            }
+            .info-row {
+                margin: 10px 0;
+                font-size: 16px;
+            }
+            .info-row strong {
+                display: inline-block;
+                width: 150px;
+            }
+            .category-section {
+                margin-bottom: 30px;
+            }
+            .category-title {
+                background-color: #e8f4f8;
+                padding: 10px;
+                border-radius: 5px;
+                margin-bottom: 10px;
+                color: #2c3e50;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 10px 0 20px 0;
+            }
+            th {
+                background-color: #34495e;
+                color: white;
+                padding: 12px;
+                text-align: right;
+                border: 1px solid #ddd;
+            }
+            td {
+                padding: 10px;
+                border: 1px solid #ddd;
+            }
+            tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            .quantity-cell, .weight-cell {
+                text-align: center;
+                font-weight: bold;
+            }
+            .notes-section {
+                background-color: #fff3cd;
+                padding: 15px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border: 1px solid #ffc107;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 2px solid #ddd;
+                color: #666;
+            }
+            @media print {
+                .pagebreak {
+                    page-break-before: always;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="logo">מוצרי שייקביץ</div>
+            <div class="title">טופס הexport default async function handler(req, res) {
     // אפשר רק POST requests
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -89,10 +247,51 @@ export default async function handler(req, res) {
     }
 }
 
-// פונקציה ליצירת HTML לאימיל
+// מיפוי מוצרים לקטגוריות
+const CATEGORIES = {
+    'מוצרי הודו': [
+        'הודו_אדום', 'הודו_אדום_חנות', 'שניצל', 'שווארמה', 'שווארמה_חנות',
+        'טחון_הודו', 'טחון_הודו_1_קג', 'טחון_חזה', 'טחון_אדום', 'רולדה_הודו',
+        'גרון', 'כנפיים', 'שוקיים', 'צלעות_הודו', 'סטייק_הודו', 'שיפודים',
+        'קורקבן', 'כבד_הודו_צלוי'
+    ],
+    'מוצרי בקר': [
+        'טחון_בקר', 'טחון_בקר_1_קג', 'גולש_בקר', 'חמין', 'רולדה_בקר',
+        'סטייק_שלם', 'סטייק_פרוס', 'סטייק_דק', 'סטייק_עצם', 'צלעות_מס\'_2',
+        'חזה_מס\'_3', 'כתף_מס\'_4', 'צלי_כתף_מס\'_5', 'פילה_מדומה_מס\'_6',
+        'מכסה_הצלע_מס\'_7', 'מכסה_ורד_הצלע_מס\'_17', 'שריר_מס\'_8',
+        'אסדו_שלם_מס\'_9', 'אסדו_מגש', 'אסדו_99', 'אסדו_עצם_שלם', 'אסדו_עצם_מגש',
+        'צוואר_מס\'_10', 'שומן_בקר', 'לב_הצלעות', 'עצמות_מח', 'אצבעות',
+        'גידים', 'לשון', 'ראש', 'אוסבוקו', 'שניצל_עגל'
+    ],
+    'מוצרים': [
+        'קבב', 'המבורגר', 'נקיניקיות', 'נקניקיות_חריפות', 'נקניקיות_בקר',
+        'מרגז', 'צוריסוס', 'קציצות_בקר', 'סטייקבורגר', 'קוגל_לחמין'
+    ],
+    'מוסדי': [
+        'שניצל_מוסדי', 'גולש_בקר_מוסדי', 'קבב_בקר_מוסדי', 'המבורגר_בקר_מוסדי',
+        'נקניקיות_מוסדי', 'נקניקיות_בקר_מוסדי', 'קציצות_בקר_מוסדי', 'שווארמה_מוסדי',
+        'שווארמה_תפזורת', 'הודו_אדום_קוביות', 'נתחי_חזה', 'פרפר_מוסדי', 'שומן_הודו',
+        'מכסה_הצלע_קוביות', 'טריימינג', 'מרגז_מוסדי', 'צוריסוס_מוסדי',
+        'קבב_הודו_מוסדי', 'המבורגר_הודו_מוסדי', 'טחון_הודו_מוסדי', 'טחון_בקר_בקר_מוסדי',
+        'רולדה_הודו_מוסדי', 'רולדה_בקר_מוסדי'
+    ],
+    'נקניקים': [
+        'חזה_400', 'רומני_400', 'בקר_400', 'סלמי_400', 'קוניאק_400', 'הודו_400',
+        'חזה_200', 'רומני_200', 'בקר_200', 'סלמי_200', 'קוניאק_200', 'הודו_200',
+        'חזה_מעושן', 'רומני_מעושן', 'בקר_מעושן', 'נקניק_סלמי', 'נקניק_קוניאק',
+        'נקניק_הודו', 'קבנוס', 'קוניאק_יבש'
+    ],
+    'כבש': [
+        'צלעות_כבש', 'כתף_כבש', 'צוואר_כבש', 'זרוע_כבש', 'שומן_כבש',
+        'חמין_כבש', 'אסדו_כבש', 'כבד_לא_צלוי', 'טחול', 'אשכים', 'לב'
+    ]
+};
+
+// פונקציה ליצירת HTML לאימיל עם ארגון לפי קטגוריות
 function createEmailHTML(data, customerName) {
-    // פילטור המוצרים שנבחרו
-    const selectedProducts = [];
+    // ארגון המוצרים לפי קטגוריות
+    const organizedProducts = {};
     
     Object.keys(data).forEach(key => {
         if (key.startsWith('כמות_') && data[key]) {
@@ -100,12 +299,33 @@ function createEmailHTML(data, customerName) {
             const weightKey = `משקל_${productType}`;
             const notesKey = `הערות_${productType}`;
             
-            selectedProducts.push({
+            const product = {
                 name: productType.replace(/_/g, ' '),
                 quantity: data[key],
                 weight: data[weightKey] || '',
                 notes: data[notesKey] || ''
-            });
+            };
+            
+            // מציאת הקטגוריה המתאימה למוצר
+            let categoryFound = false;
+            for (const [categoryName, categoryProducts] of Object.entries(CATEGORIES)) {
+                if (categoryProducts.includes(productType)) {
+                    if (!organizedProducts[categoryName]) {
+                        organizedProducts[categoryName] = [];
+                    }
+                    organizedProducts[categoryName].push(product);
+                    categoryFound = true;
+                    break;
+                }
+            }
+            
+            // אם לא נמצאה קטגוריה, הוסף לקטגוריה כללית
+            if (!categoryFound) {
+                if (!organizedProducts['אחרים']) {
+                    organizedProducts['אחרים'] = [];
+                }
+                organizedProducts['אחרים'].push(product);
+            }
         }
     });
 
@@ -113,7 +333,7 @@ function createEmailHTML(data, customerName) {
     const deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
     const orderNotes = data.orderNotes || data['הערות כלליות'] || '';
 
-    return `
+    let html = `
     <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; max-width: 800px; margin: 0 auto;">
         <h1 style="color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px;">
             הזמנה חדשה - מוצרי שייקביץ
@@ -128,369 +348,70 @@ function createEmailHTML(data, customerName) {
         </div>
         
         <h2 style="color: #34495e;">פרטי ההזמנה</h2>
-        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-            <thead>
-                <tr style="background-color: #34495e; color: white;">
-                    <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מוצר</th>
-                    <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">כמות</th>
-                    <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">משקל (ק״ג)</th>
-                    <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">הערות</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${selectedProducts.map(product => `
-                <tr>
-                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">${product.name}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.quantity}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.weight}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd;">${product.notes}</td>
-                </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        
-        ${orderNotes ? `
+    `;
+
+    // יצירת טבלאות לפי קטגוריות
+    for (const [categoryName, products] of Object.entries(organizedProducts)) {
+        if (products.length > 0) {
+            html += `
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #2c3e50; background-color: #e8f4f8; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                    ${categoryName}
+                </h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background-color: #34495e; color: white;">
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מוצר</th>
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">כמות</th>
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">משקל (ק״ג)</th>
+                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">הערות</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            products.forEach((product, index) => {
+                const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                html += `
+                        <tr style="background-color: ${bgColor};">
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">${product.name}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #27ae60; font-weight: bold;">${product.quantity}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #2980b9; font-weight: bold;">${product.weight}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${product.notes}</td>
+                        </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            </div>
+            `;
+        }
+    }
+    
+    // הערות כלליות
+    if (orderNotes) {
+        html += `
         <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #2c3e50; margin-top: 0;">הערות כלליות</h3>
             <p>${orderNotes}</p>
         </div>
-        ` : ''}
-        
+        `;
+    }
+    
+    // הודעת סיום
+    html += `
         <div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">
             <p style="margin: 0; color: #155724;">
                 <strong>ההזמנה התקבלה בהצלחה!</strong><br>
-                קובץ PDF של ההזמנה מצורף למייל זה.
-            </p>
-        </div>
-        
-        <div style="margin-top: 20px; text-align: center; padding: 15px; background-color: #f8f9fa; border-radius: 8px;">
-            <p style="margin: 0; color: #666;">
-                <strong>לתשומת לבך:</strong> מצורף קובץ PDF להדפסה נוחה של ההזמנה.
+                פרטי ההזמנה מצורפים לעיל.
             </p>
         </div>
     </div>
     `;
-}
-
-// פונקציה ליצירת PDF
-async function createPDF(data, customerName) {
-    // יצירת HTML עבור ה-PDF
-    const pdfHTML = createPDFHTML(data, customerName);
     
-    // בדיקה איזה API להשתמש
-    const apiKey = process.env.HTML2PDF_API_KEY;
-    const pdfShiftKey = process.env.PDFSHIFT_API_KEY;
-    
-    try {
-        let pdfBuffer;
-        
-        if (pdfShiftKey) {
-            // אפשרות 1: PDFShift (מומלץ - תומך מצוין בעברית)
-            console.log('Using PDFShift API');
-            const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Basic ' + Buffer.from(pdfShiftKey + ':').toString('base64'),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    source: pdfHTML,
-                    format: 'A4',
-                    margin: '20mm',
-                    landscape: false,
-                    use_print: true
-                })
-            });
-            
-            if (!pdfResponse.ok) {
-                throw new Error(`PDFShift Error: ${pdfResponse.status}`);
-            }
-            
-            pdfBuffer = await pdfResponse.buffer();
-            
-        } else if (apiKey) {
-            // אפשרות 2: HTML2PDF.app
-            console.log('Using HTML2PDF.app API');
-            const pdfResponse = await fetch('https://api.html2pdf.app/v1/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authentication': apiKey // או 'X-API-KEY': apiKey
-                },
-                body: JSON.stringify({
-                    html: pdfHTML,
-                    options: {
-                        format: 'A4',
-                        printBackground: true,
-                        margin: {
-                            top: '20mm',
-                            bottom: '20mm',
-                            left: '20mm',
-                            right: '20mm'
-                        }
-                    }
-                })
-            });
-            
-            if (!pdfResponse.ok) {
-                throw new Error(`HTML2PDF Error: ${pdfResponse.status}`);
-            }
-            
-            pdfBuffer = await pdfResponse.buffer();
-            
-        } else {
-            // אפשרות 3: API Ninjas HTML to PDF (חינמי עד 50,000 בקשות לחודש)
-            console.log('Using API Ninjas');
-            const apiNinjasKey = process.env.API_NINJAS_KEY;
-            
-            if (apiNinjasKey) {
-                const pdfResponse = await fetch('https://api.api-ninjas.com/v1/htmltopdf', {
-                    method: 'POST',
-                    headers: {
-                        'X-Api-Key': apiNinjasKey,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        html: pdfHTML
-                    })
-                });
-                
-                if (!pdfResponse.ok) {
-                    throw new Error(`API Ninjas Error: ${pdfResponse.status}`);
-                }
-                
-                pdfBuffer = await pdfResponse.buffer();
-            } else {
-                // אם אין API keys, נשתמש בפתרון פשוט
-                console.log('No PDF API key found, using simple PDF');
-                return createSimplePDF(data, customerName);
-            }
-        }
-        
-        return pdfBuffer;
-        
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        // אם יצירת ה-PDF נכשלה, ניצור PDF פשוט עם טקסט בלבד
-        return createSimplePDF(data, customerName);
-    }
-}
-
-// יצירת HTML עבור ה-PDF
-function createPDFHTML(data, customerName) {
-    const selectedProducts = [];
-    
-    Object.keys(data).forEach(key => {
-        if (key.startsWith('כמות_') && data[key]) {
-            const productType = key.replace('כמות_', '');
-            const weightKey = `משקל_${productType}`;
-            const notesKey = `הערות_${productType}`;
-            
-            selectedProducts.push({
-                name: productType.replace(/_/g, ' '),
-                quantity: data[key],
-                weight: data[weightKey] || '',
-                notes: data[notesKey] || ''
-            });
-        }
-    });
-
-    const customerCode = data.customerCode || data['קוד לקוח'] || '';
-    const deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
-    const orderNotes = data.orderNotes || data['הערות כלליות'] || '';
-
-    return `
-    <!DOCTYPE html>
-    <html lang="he" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>הזמנה - ${customerName}</title>
-        <style>
-            @page {
-                size: A4;
-                margin: 20mm;
-            }
-            body {
-                font-family: Arial, sans-serif;
-                direction: rtl;
-                text-align: right;
-                margin: 0;
-                padding: 0;
-                color: #333;
-            }
-            .header {
-                text-align: center;
-                margin-bottom: 30px;
-                padding-bottom: 20px;
-                border-bottom: 3px solid #2c3e50;
-            }
-            .logo {
-                font-size: 32px;
-                font-weight: bold;
-                color: #2c3e50;
-                margin-bottom: 10px;
-            }
-            .title {
-                font-size: 24px;
-                color: #34495e;
-            }
-            .customer-info {
-                background-color: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                margin-bottom: 30px;
-            }
-            .customer-info h2 {
-                margin-top: 0;
-                color: #2c3e50;
-            }
-            .info-row {
-                margin: 10px 0;
-                font-size: 16px;
-            }
-            .info-row strong {
-                display: inline-block;
-                width: 150px;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 20px 0;
-            }
-            th {
-                background-color: #34495e;
-                color: white;
-                padding: 12px;
-                text-align: right;
-                border: 1px solid #ddd;
-            }
-            td {
-                padding: 10px;
-                border: 1px solid #ddd;
-            }
-            tr:nth-child(even) {
-                background-color: #f8f9fa;
-            }
-            .quantity-cell, .weight-cell {
-                text-align: center;
-                font-weight: bold;
-            }
-            .notes-section {
-                background-color: #fff3cd;
-                padding: 15px;
-                border-radius: 8px;
-                margin: 20px 0;
-                border: 1px solid #ffc107;
-            }
-            .footer {
-                text-align: center;
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 2px solid #ddd;
-                color: #666;
-            }
-            @media print {
-                .pagebreak {
-                    page-break-before: always;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <div class="logo">מוצרי שייקביץ</div>
-            <div class="title">טופס הזמנה</div>
-        </div>
-        
-        <div class="customer-info">
-            <h2>פרטי הלקוח</h2>
-            <div class="info-row"><strong>שם לקוח:</strong> ${customerName}</div>
-            ${customerCode ? `<div class="info-row"><strong>קוד לקוח:</strong> ${customerCode}</div>` : ''}
-            ${deliveryDate ? `<div class="info-row"><strong>תאריך אספקה:</strong> ${formatDate(deliveryDate)}</div>` : ''}
-            <div class="info-row"><strong>תאריך ההזמנה:</strong> ${getCurrentDateTime()}</div>
-        </div>
-        
-        <h2>פרטי ההזמנה</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 30%;">מוצר</th>
-                    <th style="width: 15%;">כמות</th>
-                    <th style="width: 15%;">משקל (ק״ג)</th>
-                    <th style="width: 40%;">הערות</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${selectedProducts.map(product => `
-                <tr>
-                    <td style="font-weight: bold;">${product.name}</td>
-                    <td class="quantity-cell">${product.quantity}</td>
-                    <td class="weight-cell">${product.weight}</td>
-                    <td>${product.notes}</td>
-                </tr>
-                `).join('')}
-            </tbody>
-        </table>
-        
-        ${orderNotes ? `
-        <div class="notes-section">
-            <h3>הערות כלליות</h3>
-            <p>${orderNotes}</p>
-        </div>
-        ` : ''}
-        
-        <div class="footer">
-            <p>מסמך זה הופק אוטומטית מטופס ההזמנה המקוון</p>
-            <p>${new Date().toLocaleDateString('he-IL')} | ${new Date().toLocaleTimeString('he-IL')}</p>
-        </div>
-    </body>
-    </html>
-    `;
-}
-
-// יצירת PDF פשוט כפתרון חלופי
-function createSimplePDF(data, customerName) {
-    // יצירת טקסט פשוט של ההזמנה
-    let content = `הזמנה - מוצרי שייקביץ\n`;
-    content += `========================\n\n`;
-    content += `שם לקוח: ${customerName}\n`;
-    
-    if (data.customerCode) {
-        content += `קוד לקוח: ${data.customerCode}\n`;
-    }
-    
-    if (data.deliveryDate) {
-        content += `תאריך אספקה: ${formatDate(data.deliveryDate)}\n`;
-    }
-    
-    content += `תאריך הזמנה: ${getCurrentDateTime()}\n\n`;
-    content += `פרטי ההזמנה:\n`;
-    content += `-------------\n`;
-    
-    Object.keys(data).forEach(key => {
-        if (key.startsWith('כמות_') && data[key]) {
-            const productType = key.replace('כמות_', '');
-            const weightKey = `משקל_${productType}`;
-            const notesKey = `הערות_${productType}`;
-            
-            content += `\n${productType.replace(/_/g, ' ')}:\n`;
-            content += `  כמות: ${data[key]}\n`;
-            if (data[weightKey]) {
-                content += `  משקל: ${data[weightKey]} ק"ג\n`;
-            }
-            if (data[notesKey]) {
-                content += `  הערות: ${data[notesKey]}\n`;
-            }
-        }
-    });
-    
-    if (data.orderNotes) {
-        content += `\n\nהערות כלליות:\n${data.orderNotes}\n`;
-    }
-    
-    // המרת הטקסט ל-Buffer
-    return Buffer.from(content, 'utf8');
+    return html;
 }
 
 function formatDate(dateString) {
