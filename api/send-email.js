@@ -1,162 +1,4 @@
-// יצירת HTML עבור ה-PDF עם ארגון לפי קטגוריות
-function createPDFHTML(data, customerName) {
-    // ארגון המוצרים לפי קטגוריות
-    const organizedProducts = {};
-    
-    Object.keys(data).forEach(key => {
-        if (key.startsWith('כמות_') && data[key]) {
-            const productType = key.replace('כמות_', '');
-            const weightKey = `משקל_${productType}`;
-            const notesKey = `הערות_${productType}`;
-            
-            const product = {
-                name: productType.replace(/_/g, ' '),
-                quantity: data[key],
-                weight: data[weightKey] || '',
-                notes: data[notesKey] || ''
-            };
-            
-            // מציאת הקטגוריה המתאימה למוצר
-            let categoryFound = false;
-            for (const [categoryName, categoryProducts] of Object.entries(CATEGORIES)) {
-                if (categoryProducts.includes(productType)) {
-                    if (!organizedProducts[categoryName]) {
-                        organizedProducts[categoryName] = [];
-                    }
-                    organizedProducts[categoryName].push(product);
-                    categoryFound = true;
-                    break;
-                }
-            }
-            
-            // אם לא נמצאה קטגוריה, הוסף לקטגוריה כללית
-            if (!categoryFound) {
-                if (!organizedProducts['אחרים']) {
-                    organizedProducts['אחרים'] = [];
-                }
-                organizedProducts['אחרים'].push(product);
-            }
-        }
-    });
-
-    const customerCode = data.customerCode || data['קוד לקוח'] || '';
-    const deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
-    const orderNotes = data.orderNotes || data['הערות כלליות'] || '';
-
-    let html = `
-    <!DOCTYPE html>
-    <html lang="he" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>הזמנה - ${customerName}</title>
-        <style>
-            @page {
-                size: A4;
-                margin: 20mm;
-            }
-            body {
-                font-family: Arial, sans-serif;
-                direction: rtl;
-                text-align: right;
-                margin: 0;
-                padding: 0;
-                color: #333;
-            }
-            .header {
-                text-align: center;
-                margin-bottom: 30px;
-                padding-bottom: 20px;
-                border-bottom: 3px solid #2c3e50;
-            }
-            .logo {
-                font-size: 32px;
-                font-weight: bold;
-                color: #2c3e50;
-                margin-bottom: 10px;
-            }
-            .title {
-                font-size: 24px;
-                color: #34495e;
-            }
-            .customer-info {
-                background-color: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                margin-bottom: 30px;
-            }
-            .customer-info h2 {
-                margin-top: 0;
-                color: #2c3e50;
-            }
-            .info-row {
-                margin: 10px 0;
-                font-size: 16px;
-            }
-            .info-row strong {
-                display: inline-block;
-                width: 150px;
-            }
-            .category-section {
-                margin-bottom: 30px;
-            }
-            .category-title {
-                background-color: #e8f4f8;
-                padding: 10px;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                color: #2c3e50;
-                font-size: 18px;
-                font-weight: bold;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 10px 0 20px 0;
-            }
-            th {
-                background-color: #34495e;
-                color: white;
-                padding: 12px;
-                text-align: right;
-                border: 1px solid #ddd;
-            }
-            td {
-                padding: 10px;
-                border: 1px solid #ddd;
-            }
-            tr:nth-child(even) {
-                background-color: #f8f9fa;
-            }
-            .quantity-cell, .weight-cell {
-                text-align: center;
-                font-weight: bold;
-            }
-            .notes-section {
-                background-color: #fff3cd;
-                padding: 15px;
-                border-radius: 8px;
-                margin: 20px 0;
-                border: 1px solid #ffc107;
-            }
-            .footer {
-                text-align: center;
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 2px solid #ddd;
-                color: #666;
-            }
-            @media print {
-                .pagebreak {
-                    page-break-before: always;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <div class="logo">מוצרי שייקביץ</div>
-            <div class="title">טופס הexport default async function handler(req, res) {
+export default async function handler(req, res) {
     // אפשר רק POST requests
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -189,26 +31,16 @@ function createPDFHTML(data, customerName) {
         // יצירת HTML לאימיל
         const emailHTML = createEmailHTML(formData, customerName);
         
-        // יצירת PDF
-        const pdfBuffer = await createPDF(formData, customerName);
-        const pdfBase64 = pdfBuffer.toString('base64');
-        
-        // שליחת אימיל דרך SendGrid API עם PDF מצורף
+        // שליחת אימיל דרך SendGrid API עם fetch
         const emailData = {
             personalizations: [{
-                to: [{ email: '9606663@gmail.com' }], // ** החלף עם המייל שלך **
+                to: [{ email: 'yus2770@gmail.com' }], // ** החלף עם המייל שלך **
                 subject: `הזמנה חדשה מ-${customerName}`
             }],
             from: { email: '9606663@gmail.com' }, // ** החלף עם המייל המאומת **
             content: [{
                 type: 'text/html',
                 value: emailHTML
-            }],
-            attachments: [{
-                content: pdfBase64,
-                filename: `הזמנה_${customerName}_${new Date().toLocaleDateString('he-IL').replace(/\//g, '-')}.pdf`,
-                type: 'application/pdf',
-                disposition: 'attachment'
             }]
         };
         
