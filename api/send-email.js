@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         // שליחת אימיל דרך SendGrid API עם fetch
         const emailData = {
             personalizations: [{
-                to: [{ email: 'yus2770@gmail.com' }], // ** החלף עם המייל שלך **
+                to: [{ email: '9606663@gmail.com' }], // ** החלף עם המייל שלך **
                 subject: `הזמנה חדשה מ-${customerName}`
             }],
             from: { email: '9606663@gmail.com' }, // ** החלף עם המייל המאומת **
