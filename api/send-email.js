@@ -43,10 +43,10 @@ export default async function handler(req, res) {
         // שליחת אימיל דרך SendGrid API עם קובץ מצורף
         const emailData = {
             personalizations: [{
-                to: [{ email: 'yus2770@gmail.com' }],
+                to: [{ email: '9606663@gmail.com' }],
                 subject: 'הזמנה חדשה מ-' + customerName
             }],
-            from: { email: 'yus2770@gmail.com' },
+            from: { email: '9606663@gmail.com' },
             content: [{
                 type: 'text/html',
                 value: emailHTML
