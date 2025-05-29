@@ -31,11 +31,16 @@ export default async function handler(req, res) {
         // יצירת HTML לאימיל
         const emailHTML = createEmailHTML(formData, customerName);
         
-        // יצירת PDF
-        const pdfBuffer = await createPDF(formData, customerName);
-        const pdfBase64 = pdfBuffer.toString('base64');
+        // יצירת PDF או קובץ טקסט
+        const fileBuffer = await createPrintableText(formData, customerName);
+        const fileBase64 = fileBuffer.toString('base64');
         
-        // שליחת אימיל דרך SendGrid API עם PDF מצורף
+        // קביעת סוג הקובץ
+        const isPDF = process.env.PDFSHIFT_API_KEY ? true : false;
+        const fileExtension = isPDF ? 'pdf' : 'txt';
+        const mimeType = isPDF ? 'application/pdf' : 'text/plain';
+        
+        // שליחת אימיל דרך SendGrid API עם קובץ מצורף
         const emailData = {
             personalizations: [{
                 to: [{ email: 'yus2770@gmail.com' }],
@@ -47,9 +52,9 @@ export default async function handler(req, res) {
                 value: emailHTML
             }],
             attachments: [{
-                content: pdfBase64,
-                filename: 'הזמנה_' + customerName + '_' + new Date().toLocaleDateString('he-IL').replace(/\//g, '-') + '.pdf',
-                type: 'application/pdf',
+                content: fileBase64,
+                filename: 'הזמנה_' + customerName + '_' + new Date().toLocaleDateString('he-IL').replace(/\//g, '-') + '.' + fileExtension,
+                type: mimeType,
                 disposition: 'attachment'
             }]
         };
@@ -249,7 +254,7 @@ function createEmailHTML(data, customerName) {
     html += '<div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">';
     html += '<p style="margin: 0; color: #155724;">';
     html += '<strong>ההזמנה התקבלה בהצלחה!</strong><br>';
-    html += 'קובץ PDF של ההזמנה מצורף למייל זה.';
+    html += 'קובץ ההזמנה להדפסה מצורף למייל זה.';
     html += '</p>';
     html += '</div>';
     html += '</div>';
@@ -257,72 +262,210 @@ function createEmailHTML(data, customerName) {
     return html;
 }
 
-// פונקציה ליצירת PDF פשוט ועובד
-async function createPDF(data, customerName) {
-    console.log('Creating simple PDF for:', customerName);
+// יצירת קובץ טקסט נקי להדפסה עם ארגון לפי קטגוריות
+function createPrintableText(data, customerName) {
+    console.log('Creating printable text file for:', customerName);
     
-    try {
-        // ננסה עם PDFShift אם יש API key
-        var pdfShiftKey = process.env.PDFSHIFT_API_KEY;
-        
-        if (pdfShiftKey) {
-            console.log('Trying PDFShift API');
-            var pdfHTML = createPDFHTML(data, customerName);
-            
-            var pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Basic ' + Buffer.from(pdfShiftKey + ':').toString('base64'),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    source: pdfHTML,
-                    format: 'A4',
-                    margin: '15mm',
-                    landscape: false,
-                    use_print: true
-                })
-            });
-            
-            if (pdfResponse.ok) {
-                var pdfBuffer = await pdfResponse.arrayBuffer();
-                console.log('PDFShift success, PDF size:', pdfBuffer.byteLength);
-                return Buffer.from(pdfBuffer);
-            } else {
-                console.error('PDFShift failed:', pdfResponse.status);
-                throw new Error('PDFShift failed');
-            }
-        }
-        
-        // אם אין PDFShift או שזה נכשל, ניצור PDF טקסטואלי פשוט
-        console.log('Creating simple text PDF');
-        return createSimplePDF(data, customerName);
-        
-    } catch (error) {
-        console.error('PDF creation error:', error);
-        // במקרה של כל שגיאה, ניצור PDF טקסטואלי פשוט
-        return createSimplePDF(data, customerName);
+    // קודם ננסה ליצור PDF אמיתי עם PDFShift
+    return createPDFWithPDFShift(data, customerName).catch(function(error) {
+        console.log('PDF creation failed, creating text file instead:', error.message);
+        return createTextFile(data, customerName);
+    });
+}
+
+// פונקציה ליצירת PDF עם PDFShift
+async function createPDFWithPDFShift(data, customerName) {
+    var pdfShiftKey = process.env.PDFSHIFT_API_KEY;
+    
+    if (!pdfShiftKey) {
+        throw new Error('No PDFShift API key found');
     }
+    
+    console.log('Trying PDFShift API with X-API-Key');
+    var pdfHTML = createPDFHTML(data, customerName);
+    
+    var pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
+        method: 'POST',
+        headers: {
+            'X-API-Key': pdfShiftKey,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            source: pdfHTML,
+            format: 'A4',
+            margin: '15mm',
+            landscape: false,
+            use_print: true,
+            sandbox: false
+        })
+    });
+    
+    if (!pdfResponse.ok) {
+        var errorText = await pdfResponse.text();
+        console.error('PDFShift failed:', pdfResponse.status, errorText);
+        throw new Error('PDFShift failed: ' + pdfResponse.status);
+    }
+    
+    var pdfBuffer = await pdfResponse.arrayBuffer();
+    console.log('PDFShift success, PDF size:', pdfBuffer.byteLength);
+    return Buffer.from(pdfBuffer);
 }
 
 // יצירת HTML עבור ה-PDF עם ארגון לפי קטגוריות
 function createPDFHTML(data, customerName) {
-    // קוד דומה לאימיל אבל עם CSS מיוחד ל-PDF
-    var html = '<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8">';
+    // ארגון המוצרים לפי קטגוריות
+    var organizedProducts = {};
+    
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (key.indexOf('כמות_') === 0 && data[key]) {
+            var productType = key.replace('כמות_', '');
+            var weightKey = 'משקל_' + productType;
+            var notesKey = 'הערות_' + productType;
+            
+            var product = {
+                name: productType.replace(/_/g, ' '),
+                quantity: data[key],
+                weight: data[weightKey] || '',
+                notes: data[notesKey] || ''
+            };
+            
+            // מציאת הקטגוריה המתאימה למוצר
+            var categoryFound = false;
+            var categoryNames = Object.keys(CATEGORIES);
+            for (var j = 0; j < categoryNames.length; j++) {
+                var categoryName = categoryNames[j];
+                var categoryProducts = CATEGORIES[categoryName];
+                if (categoryProducts.indexOf(productType) !== -1) {
+                    if (!organizedProducts[categoryName]) {
+                        organizedProducts[categoryName] = [];
+                    }
+                    organizedProducts[categoryName].push(product);
+                    categoryFound = true;
+                    break;
+                }
+            }
+            
+            // אם לא נמצאה קטגוריה, הוסף לקטגוריה כללית
+            if (!categoryFound) {
+                if (!organizedProducts['אחרים']) {
+                    organizedProducts['אחרים'] = [];
+                }
+                organizedProducts['אחרים'].push(product);
+            }
+        }
+    }
+
+    var customerCode = data.customerCode || data['קוד לקוח'] || '';
+    var deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
+    var orderNotes = data.orderNotes || data['הערות כלליות'] || '';
+
+    var html = '<!DOCTYPE html>';
+    html += '<html lang="he" dir="rtl">';
+    html += '<head>';
+    html += '<meta charset="UTF-8">';
+    html += '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
     html += '<title>הזמנה - ' + customerName + '</title>';
-    html += '<style>body{font-family:Arial,sans-serif;direction:rtl;margin:20px;}</style>';
-    html += '</head><body>';
-    html += '<h1>מוצרי שייקביץ - הזמנה</h1>';
-    html += '<p>שם לקוח: ' + customerName + '</p>';
-    html += '<p>תאריך: ' + getCurrentDateTime() + '</p>';
-    html += '</body></html>';
+    html += '<style>';
+    html += '@page { size: A4; margin: 15mm; }';
+    html += 'body { font-family: Arial, sans-serif; direction: rtl; text-align: right; margin: 0; padding: 0; color: #333; }';
+    html += '.header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #2c3e50; }';
+    html += '.logo { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }';
+    html += '.title { font-size: 20px; color: #34495e; }';
+    html += '.customer-info { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }';
+    html += '.customer-info h2 { margin-top: 0; color: #2c3e50; font-size: 18px; }';
+    html += '.info-row { margin: 8px 0; font-size: 14px; }';
+    html += '.category-section { margin-bottom: 25px; }';
+    html += '.category-title { background-color: #e8f4f8; padding: 8px; border-radius: 3px; margin-bottom: 8px; color: #2c3e50; font-size: 16px; font-weight: bold; }';
+    html += 'table { width: 100%; border-collapse: collapse; margin: 8px 0 15px 0; }';
+    html += 'th { background-color: #34495e; color: white; padding: 8px; text-align: right; border: 1px solid #ddd; font-size: 14px; }';
+    html += 'td { padding: 6px; border: 1px solid #ddd; font-size: 12px; }';
+    html += 'tr:nth-child(even) { background-color: #f8f9fa; }';
+    html += '.quantity-cell, .weight-cell { text-align: center; font-weight: bold; }';
+    html += '.notes-section { background-color: #fff3cd; padding: 10px; border-radius: 5px; margin: 15px 0; border: 1px solid #ffc107; }';
+    html += '.footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 2px solid #ddd; color: #666; font-size: 12px; }';
+    html += '</style>';
+    html += '</head>';
+    html += '<body>';
+    
+    html += '<div class="header">';
+    html += '<div class="logo">מוצרי שייקביץ</div>';
+    html += '<div class="title">טופס הזמנה</div>';
+    html += '</div>';
+    
+    html += '<div class="customer-info">';
+    html += '<h2>פרטי הלקוח</h2>';
+    html += '<div class="info-row"><strong>שם לקוח:</strong> ' + customerName + '</div>';
+    if (customerCode) {
+        html += '<div class="info-row"><strong>קוד לקוח:</strong> ' + customerCode + '</div>';
+    }
+    if (deliveryDate) {
+        html += '<div class="info-row"><strong>תאריך אספקה:</strong> ' + formatDate(deliveryDate) + '</div>';
+    }
+    html += '<div class="info-row"><strong>תאריך ההזמנה:</strong> ' + getCurrentDateTime() + '</div>';
+    html += '</div>';
+    
+    html += '<h2>פרטי ההזמנה</h2>';
+
+    // יצירת טבלאות לפי קטגוריות
+    var organizedCategoryNames = Object.keys(organizedProducts);
+    for (var k = 0; k < organizedCategoryNames.length; k++) {
+        var categoryName = organizedCategoryNames[k];
+        var products = organizedProducts[categoryName];
+        
+        if (products.length > 0) {
+            html += '<div class="category-section">';
+            html += '<div class="category-title">' + categoryName + '</div>';
+            html += '<table>';
+            html += '<thead>';
+            html += '<tr>';
+            html += '<th style="width: 30%;">מוצר</th>';
+            html += '<th style="width: 15%;">כמות</th>';
+            html += '<th style="width: 15%;">משקל (ק״ג)</th>';
+            html += '<th style="width: 40%;">הערות</th>';
+            html += '</tr>';
+            html += '</thead>';
+            html += '<tbody>';
+            
+            for (var l = 0; l < products.length; l++) {
+                var product = products[l];
+                html += '<tr>';
+                html += '<td style="font-weight: bold;">' + product.name + '</td>';
+                html += '<td class="quantity-cell">' + product.quantity + '</td>';
+                html += '<td class="weight-cell">' + product.weight + '</td>';
+                html += '<td>' + product.notes + '</td>';
+                html += '</tr>';
+            }
+            
+            html += '</tbody>';
+            html += '</table>';
+            html += '</div>';
+        }
+    }
+    
+    // הערות כלליות
+    if (orderNotes) {
+        html += '<div class="notes-section">';
+        html += '<h3>הערות כלליות</h3>';
+        html += '<p>' + orderNotes + '</p>';
+        html += '</div>';
+    }
+    
+    html += '<div class="footer">';
+    html += '<p>מסמך זה הופק אוטומטית מטופס ההזמנה המקוון</p>';
+    html += '<p>' + getCurrentDateTime() + '</p>';
+    html += '</div>';
+    
+    html += '</body>';
+    html += '</html>';
     
     return html;
 }
 
-// יצירת PDF פשוט ועובד כפתרון חלופי עם ארגון לפי קטגוריות
-function createSimplePDF(data, customerName) {
-    console.log('Creating simple text-based PDF for:', customerName);
+// פונקציית גיבוי ליצירת קובץ טקסט
+function createTextFile(data, customerName) {
+    console.log('Creating printable text file for:', customerName);
     
     // ארגון המוצרים לפי קטגוריות
     var organizedProducts = {};
@@ -368,15 +511,15 @@ function createSimplePDF(data, customerName) {
         }
     }
 
-    // יצירת תוכן הטקסט בפורמט שניתן להדפסה
+    // יצירת תוכן הטקסט בפורמט נקי להדפסה
     var content = '';
-    content += '==================================================\n';
-    content += '                מוצרי שייקביץ                    \n';
-    content += '                טופס הזמנה                      \n';
-    content += '==================================================\n\n';
+    content += '===============================================================\n';
+    content += '                         מוצרי שייקביץ                        \n';
+    content += '                         טופס הזמנה                          \n';
+    content += '===============================================================\n\n';
     
     content += 'פרטי הלקוח:\n';
-    content += '------------\n';
+    content += '════════════\n';
     content += 'שם לקוח: ' + customerName + '\n';
     
     if (data.customerCode) {
@@ -390,7 +533,7 @@ function createSimplePDF(data, customerName) {
     content += 'תאריך הזמנה: ' + getCurrentDateTime() + '\n\n';
     
     content += 'פרטי ההזמנה:\n';
-    content += '=============\n\n';
+    content += '══════════════\n\n';
     
     // הוספת מוצרים לפי קטגוריות
     var organizedCategoryNames = Object.keys(organizedProducts);
@@ -399,42 +542,74 @@ function createSimplePDF(data, customerName) {
         var products = organizedProducts[categoryName];
         
         if (products.length > 0) {
-            content += categoryName + ':\n';
+            content += '┌─ ' + categoryName + ' ─';
             var separator = '';
-            for (var s = 0; s < categoryName.length + 1; s++) {
-                separator += '-';
+            for (var s = 0; s < 50 - categoryName.length; s++) {
+                separator += '─';
             }
-            content += separator + '\n';
+            content += separator + '┐\n';
             
             for (var l = 0; l < products.length; l++) {
                 var product = products[l];
-                content += '\n• ' + product.name + '\n';
-                content += '  כמות: ' + product.quantity;
+                content += '│                                                  │\n';
+                content += '│  ● ' + product.name;
+                
+                // הוספת רווחים כדי למלא את השורה
+                var spaces = '';
+                for (var sp = 0; sp < 45 - product.name.length; sp++) {
+                    spaces += ' ';
+                }
+                content += spaces + '│\n';
+                
+                content += '│    כמות: ' + product.quantity;
                 if (product.weight) {
-                    content += ' | משקל: ' + product.weight + ' ק"ג';
+                    content += '  |  משקל: ' + product.weight + ' ק"ג';
                 }
-                content += '\n';
+                
+                var infoSpaces = '';
+                var infoLength = 10 + product.quantity.toString().length;
+                if (product.weight) {
+                    infoLength += 12 + product.weight.toString().length;
+                }
+                for (var isp = 0; isp < 45 - infoLength; isp++) {
+                    infoSpaces += ' ';
+                }
+                content += infoSpaces + '│\n';
+                
                 if (product.notes) {
-                    content += '  הערות: ' + product.notes + '\n';
+                    content += '│    הערות: ' + product.notes;
+                    var notesSpaces = '';
+                    for (var nsp = 0; nsp < 37 - product.notes.length; nsp++) {
+                        notesSpaces += ' ';
+                    }
+                    content += notesSpaces + '│\n';
                 }
+                content += '│                                                  │\n';
             }
             
-            content += '\n';
+            content += '└──────────────────────────────────────────────────┘\n\n';
         }
     }
     
     if (data.orderNotes) {
-        content += 'הערות כלליות:\n';
-        content += '=============\n';
-        content += data.orderNotes + '\n\n';
+        content += '┌─ הערות כלליות ─────────────────────────────────────┐\n';
+        content += '│                                                  │\n';
+        content += '│  ' + data.orderNotes;
+        var generalNotesSpaces = '';
+        for (var gnsp = 0; gnsp < 46 - data.orderNotes.length; gnsp++) {
+            generalNotesSpaces += ' ';
+        }
+        content += generalNotesSpaces + '│\n';
+        content += '│                                                  │\n';
+        content += '└──────────────────────────────────────────────────┘\n\n';
     }
     
-    content += '==================================================\n';
-    content += 'מסמך זה הופק אוטומטית מטופס ההזמנה המקוון\n';
-    content += getCurrentDateTime() + '\n';
-    content += '==================================================\n';
+    content += '===============================================================\n';
+    content += '            מסמך זה הופק אוטומטית מטופס ההזמנה המקוון          \n';
+    content += '                        ' + getCurrentDateTime() + '                       \n';
+    content += '===============================================================\n';
     
-    console.log('Simple PDF content length:', content.length);
+    console.log('Printable text content created, length:', content.length);
     
     return Buffer.from(content, 'utf8');
 }
