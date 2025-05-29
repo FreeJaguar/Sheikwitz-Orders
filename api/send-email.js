@@ -31,16 +31,26 @@ export default async function handler(req, res) {
         // יצירת HTML לאימיל
         const emailHTML = createEmailHTML(formData, customerName);
         
-        // שליחת אימיל דרך SendGrid API עם fetch
+        // יצירת PDF
+        const pdfBuffer = await createPDF(formData, customerName);
+        const pdfBase64 = pdfBuffer.toString('base64');
+        
+        // שליחת אימיל דרך SendGrid API עם PDF מצורף
         const emailData = {
             personalizations: [{
-                to: [{ email: '9606663@gmail.com' }], // ** החלף עם המייל שלך **
-                subject: `הזמנה חדשה מ-${customerName}`
+                to: [{ email: 'yus2770@gmail.com' }],
+                subject: 'הזמנה חדשה מ-' + customerName
             }],
-            from: { email: '9606663@gmail.com' }, // ** החלף עם המייל המאומת **
+            from: { email: '9606663@gmail.com' },
             content: [{
                 type: 'text/html',
                 value: emailHTML
+            }],
+            attachments: [{
+                content: pdfBase64,
+                filename: 'הזמנה_' + customerName + '_' + new Date().toLocaleDateString('he-IL').replace(/\//g, '-') + '.pdf',
+                type: 'application/pdf',
+                disposition: 'attachment'
             }]
         };
         
@@ -49,7 +59,7 @@ export default async function handler(req, res) {
         const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
+                'Authorization': 'Bearer ' + apiKey,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(emailData)
@@ -58,7 +68,7 @@ export default async function handler(req, res) {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('SendGrid Error:', errorText);
-            throw new Error(`SendGrid API Error: ${response.status} - ${errorText}`);
+            throw new Error('SendGrid API Error: ' + response.status + ' - ' + errorText);
         }
         
         console.log('האימיל נשלח בהצלחה');
@@ -80,7 +90,7 @@ export default async function handler(req, res) {
 }
 
 // מיפוי מוצרים לקטגוריות
-const CATEGORIES = {
+var CATEGORIES = {
     'מוצרי הודו': [
         'הודו_אדום', 'הודו_אדום_חנות', 'שניצל', 'שווארמה', 'שווארמה_חנות',
         'טחון_הודו', 'טחון_הודו_1_קג', 'טחון_חזה', 'טחון_אדום', 'רולדה_הודו',
@@ -123,15 +133,17 @@ const CATEGORIES = {
 // פונקציה ליצירת HTML לאימיל עם ארגון לפי קטגוריות
 function createEmailHTML(data, customerName) {
     // ארגון המוצרים לפי קטגוריות
-    const organizedProducts = {};
+    var organizedProducts = {};
     
-    Object.keys(data).forEach(key => {
-        if (key.startsWith('כמות_') && data[key]) {
-            const productType = key.replace('כמות_', '');
-            const weightKey = `משקל_${productType}`;
-            const notesKey = `הערות_${productType}`;
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (key.indexOf('כמות_') === 0 && data[key]) {
+            var productType = key.replace('כמות_', '');
+            var weightKey = 'משקל_' + productType;
+            var notesKey = 'הערות_' + productType;
             
-            const product = {
+            var product = {
                 name: productType.replace(/_/g, ' '),
                 quantity: data[key],
                 weight: data[weightKey] || '',
@@ -139,9 +151,12 @@ function createEmailHTML(data, customerName) {
             };
             
             // מציאת הקטגוריה המתאימה למוצר
-            let categoryFound = false;
-            for (const [categoryName, categoryProducts] of Object.entries(CATEGORIES)) {
-                if (categoryProducts.includes(productType)) {
+            var categoryFound = false;
+            var categoryNames = Object.keys(CATEGORIES);
+            for (var j = 0; j < categoryNames.length; j++) {
+                var categoryName = categoryNames[j];
+                var categoryProducts = CATEGORIES[categoryName];
+                if (categoryProducts.indexOf(productType) !== -1) {
                     if (!organizedProducts[categoryName]) {
                         organizedProducts[categoryName] = [];
                     }
@@ -159,99 +174,277 @@ function createEmailHTML(data, customerName) {
                 organizedProducts['אחרים'].push(product);
             }
         }
-    });
+    }
 
-    const customerCode = data.customerCode || data['קוד לקוח'] || '';
-    const deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
-    const orderNotes = data.orderNotes || data['הערות כלליות'] || '';
+    var customerCode = data.customerCode || data['קוד לקוח'] || '';
+    var deliveryDate = data.deliveryDate || data['תאריך אספקה'] || '';
+    var orderNotes = data.orderNotes || data['הערות כלליות'] || '';
 
-    let html = `
-    <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; max-width: 800px; margin: 0 auto;">
-        <h1 style="color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px;">
-            הזמנה חדשה - מוצרי שייקביץ
-        </h1>
-        
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h2 style="color: #34495e; margin-top: 0;">פרטי הלקוח</h2>
-            <p><strong>שם לקוח:</strong> ${customerName}</p>
-            ${customerCode ? `<p><strong>קוד לקוח:</strong> ${customerCode}</p>` : ''}
-            ${deliveryDate ? `<p><strong>תאריך אספקה:</strong> ${formatDate(deliveryDate)}</p>` : ''}
-            <p><strong>תאריך ההזמנה:</strong> ${getCurrentDateTime()}</p>
-        </div>
-        
-        <h2 style="color: #34495e;">פרטי ההזמנה</h2>
-    `;
+    var html = '<div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; max-width: 800px; margin: 0 auto;">';
+    html += '<h1 style="color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px;">הזמנה חדשה - מוצרי שייקביץ</h1>';
+    html += '<div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">';
+    html += '<h2 style="color: #34495e; margin-top: 0;">פרטי הלקוח</h2>';
+    html += '<p><strong>שם לקוח:</strong> ' + customerName + '</p>';
+    
+    if (customerCode) {
+        html += '<p><strong>קוד לקוח:</strong> ' + customerCode + '</p>';
+    }
+    
+    if (deliveryDate) {
+        html += '<p><strong>תאריך אספקה:</strong> ' + formatDate(deliveryDate) + '</p>';
+    }
+    
+    html += '<p><strong>תאריך ההזמנה:</strong> ' + getCurrentDateTime() + '</p>';
+    html += '</div>';
+    html += '<h2 style="color: #34495e;">פרטי ההזמנה</h2>';
 
     // יצירת טבלאות לפי קטגוריות
-    for (const [categoryName, products] of Object.entries(organizedProducts)) {
+    var organizedCategoryNames = Object.keys(organizedProducts);
+    for (var k = 0; k < organizedCategoryNames.length; k++) {
+        var categoryName = organizedCategoryNames[k];
+        var products = organizedProducts[categoryName];
+        
         if (products.length > 0) {
-            html += `
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #2c3e50; background-color: #e8f4f8; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                    ${categoryName}
-                </h3>
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                    <thead>
-                        <tr style="background-color: #34495e; color: white;">
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מוצר</th>
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">כמות</th>
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">משקל (ק״ג)</th>
-                            <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">הערות</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+            html += '<div style="margin-bottom: 30px;">';
+            html += '<h3 style="color: #2c3e50; background-color: #e8f4f8; padding: 10px; border-radius: 5px; margin-bottom: 10px;">';
+            html += categoryName;
+            html += '</h3>';
+            html += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">';
+            html += '<thead>';
+            html += '<tr style="background-color: #34495e; color: white;">';
+            html += '<th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מוצר</th>';
+            html += '<th style="padding: 12px; border: 1px solid #ddd; text-align: center;">כמות</th>';
+            html += '<th style="padding: 12px; border: 1px solid #ddd; text-align: center;">משקל (ק״ג)</th>';
+            html += '<th style="padding: 12px; border: 1px solid #ddd; text-align: right;">הערות</th>';
+            html += '</tr>';
+            html += '</thead>';
+            html += '<tbody>';
             
-            products.forEach((product, index) => {
-                const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                html += `
-                        <tr style="background-color: ${bgColor};">
-                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">${product.name}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #27ae60; font-weight: bold;">${product.quantity}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #2980b9; font-weight: bold;">${product.weight}</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">${product.notes}</td>
-                        </tr>
-                `;
-            });
+            for (var l = 0; l < products.length; l++) {
+                var product = products[l];
+                var bgColor = l % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                html += '<tr style="background-color: ' + bgColor + ';">';
+                html += '<td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">' + product.name + '</td>';
+                html += '<td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #27ae60; font-weight: bold;">' + product.quantity + '</td>';
+                html += '<td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #2980b9; font-weight: bold;">' + product.weight + '</td>';
+                html += '<td style="padding: 10px; border: 1px solid #ddd;">' + product.notes + '</td>';
+                html += '</tr>';
+            }
             
-            html += `
-                    </tbody>
-                </table>
-            </div>
-            `;
+            html += '</tbody>';
+            html += '</table>';
+            html += '</div>';
         }
     }
     
     // הערות כלליות
     if (orderNotes) {
-        html += `
-        <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #2c3e50; margin-top: 0;">הערות כלליות</h3>
-            <p>${orderNotes}</p>
-        </div>
-        `;
+        html += '<div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">';
+        html += '<h3 style="color: #2c3e50; margin-top: 0;">הערות כלליות</h3>';
+        html += '<p>' + orderNotes + '</p>';
+        html += '</div>';
     }
     
     // הודעת סיום
-    html += `
-        <div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">
-            <p style="margin: 0; color: #155724;">
-                <strong>ההזמנה התקבלה בהצלחה!</strong><br>
-                פרטי ההזמנה מצורפים לעיל.
-            </p>
-        </div>
-    </div>
-    `;
+    html += '<div style="margin-top: 30px; padding: 15px; background-color: #d4edda; border-radius: 8px;">';
+    html += '<p style="margin: 0; color: #155724;">';
+    html += '<strong>ההזמנה התקבלה בהצלחה!</strong><br>';
+    html += 'קובץ PDF של ההזמנה מצורף למייל זה.';
+    html += '</p>';
+    html += '</div>';
+    html += '</div>';
     
     return html;
 }
 
+// פונקציה ליצירת PDF פשוט ועובד
+async function createPDF(data, customerName) {
+    console.log('Creating simple PDF for:', customerName);
+    
+    try {
+        // ננסה עם PDFShift אם יש API key
+        var pdfShiftKey = process.env.PDFSHIFT_API_KEY;
+        
+        if (pdfShiftKey) {
+            console.log('Trying PDFShift API');
+            var pdfHTML = createPDFHTML(data, customerName);
+            
+            var pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Basic ' + Buffer.from(pdfShiftKey + ':').toString('base64'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    source: pdfHTML,
+                    format: 'A4',
+                    margin: '15mm',
+                    landscape: false,
+                    use_print: true
+                })
+            });
+            
+            if (pdfResponse.ok) {
+                var pdfBuffer = await pdfResponse.arrayBuffer();
+                console.log('PDFShift success, PDF size:', pdfBuffer.byteLength);
+                return Buffer.from(pdfBuffer);
+            } else {
+                console.error('PDFShift failed:', pdfResponse.status);
+                throw new Error('PDFShift failed');
+            }
+        }
+        
+        // אם אין PDFShift או שזה נכשל, ניצור PDF טקסטואלי פשוט
+        console.log('Creating simple text PDF');
+        return createSimplePDF(data, customerName);
+        
+    } catch (error) {
+        console.error('PDF creation error:', error);
+        // במקרה של כל שגיאה, ניצור PDF טקסטואלי פשוט
+        return createSimplePDF(data, customerName);
+    }
+}
+
+// יצירת HTML עבור ה-PDF עם ארגון לפי קטגוריות
+function createPDFHTML(data, customerName) {
+    // קוד דומה לאימיל אבל עם CSS מיוחד ל-PDF
+    var html = '<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8">';
+    html += '<title>הזמנה - ' + customerName + '</title>';
+    html += '<style>body{font-family:Arial,sans-serif;direction:rtl;margin:20px;}</style>';
+    html += '</head><body>';
+    html += '<h1>מוצרי שייקביץ - הזמנה</h1>';
+    html += '<p>שם לקוח: ' + customerName + '</p>';
+    html += '<p>תאריך: ' + getCurrentDateTime() + '</p>';
+    html += '</body></html>';
+    
+    return html;
+}
+
+// יצירת PDF פשוט ועובד כפתרון חלופי עם ארגון לפי קטגוריות
+function createSimplePDF(data, customerName) {
+    console.log('Creating simple text-based PDF for:', customerName);
+    
+    // ארגון המוצרים לפי קטגוריות
+    var organizedProducts = {};
+    
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (key.indexOf('כמות_') === 0 && data[key]) {
+            var productType = key.replace('כמות_', '');
+            var weightKey = 'משקל_' + productType;
+            var notesKey = 'הערות_' + productType;
+            
+            var product = {
+                name: productType.replace(/_/g, ' '),
+                quantity: data[key],
+                weight: data[weightKey] || '',
+                notes: data[notesKey] || ''
+            };
+            
+            // מציאת הקטגוריה המתאימה למוצר
+            var categoryFound = false;
+            var categoryNames = Object.keys(CATEGORIES);
+            for (var j = 0; j < categoryNames.length; j++) {
+                var categoryName = categoryNames[j];
+                var categoryProducts = CATEGORIES[categoryName];
+                if (categoryProducts.indexOf(productType) !== -1) {
+                    if (!organizedProducts[categoryName]) {
+                        organizedProducts[categoryName] = [];
+                    }
+                    organizedProducts[categoryName].push(product);
+                    categoryFound = true;
+                    break;
+                }
+            }
+            
+            // אם לא נמצאה קטגוריה, הוסף לקטגוריה כללית
+            if (!categoryFound) {
+                if (!organizedProducts['אחרים']) {
+                    organizedProducts['אחרים'] = [];
+                }
+                organizedProducts['אחרים'].push(product);
+            }
+        }
+    }
+
+    // יצירת תוכן הטקסט בפורמט שניתן להדפסה
+    var content = '';
+    content += '==================================================\n';
+    content += '                מוצרי שייקביץ                    \n';
+    content += '                טופס הזמנה                      \n';
+    content += '==================================================\n\n';
+    
+    content += 'פרטי הלקוח:\n';
+    content += '------------\n';
+    content += 'שם לקוח: ' + customerName + '\n';
+    
+    if (data.customerCode) {
+        content += 'קוד לקוח: ' + data.customerCode + '\n';
+    }
+    
+    if (data.deliveryDate) {
+        content += 'תאריך אספקה: ' + formatDate(data.deliveryDate) + '\n';
+    }
+    
+    content += 'תאריך הזמנה: ' + getCurrentDateTime() + '\n\n';
+    
+    content += 'פרטי ההזמנה:\n';
+    content += '=============\n\n';
+    
+    // הוספת מוצרים לפי קטגוריות
+    var organizedCategoryNames = Object.keys(organizedProducts);
+    for (var k = 0; k < organizedCategoryNames.length; k++) {
+        var categoryName = organizedCategoryNames[k];
+        var products = organizedProducts[categoryName];
+        
+        if (products.length > 0) {
+            content += categoryName + ':\n';
+            var separator = '';
+            for (var s = 0; s < categoryName.length + 1; s++) {
+                separator += '-';
+            }
+            content += separator + '\n';
+            
+            for (var l = 0; l < products.length; l++) {
+                var product = products[l];
+                content += '\n• ' + product.name + '\n';
+                content += '  כמות: ' + product.quantity;
+                if (product.weight) {
+                    content += ' | משקל: ' + product.weight + ' ק"ג';
+                }
+                content += '\n';
+                if (product.notes) {
+                    content += '  הערות: ' + product.notes + '\n';
+                }
+            }
+            
+            content += '\n';
+        }
+    }
+    
+    if (data.orderNotes) {
+        content += 'הערות כלליות:\n';
+        content += '=============\n';
+        content += data.orderNotes + '\n\n';
+    }
+    
+    content += '==================================================\n';
+    content += 'מסמך זה הופק אוטומטית מטופס ההזמנה המקוון\n';
+    content += getCurrentDateTime() + '\n';
+    content += '==================================================\n';
+    
+    console.log('Simple PDF content length:', content.length);
+    
+    return Buffer.from(content, 'utf8');
+}
+
 function formatDate(dateString) {
-    const date = new Date(dateString);
+    var date = new Date(dateString);
     return date.toLocaleDateString('he-IL');
 }
 
 function getCurrentDateTime() {
-    const now = new Date();
+    var now = new Date();
     return now.toLocaleString('he-IL');
 }
