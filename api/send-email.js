@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                 to: [{ email: 'yus2770@gmail.com' }],
                 subject: 'הזמנה חדשה מ-' + customerName
             }],
-            from: { email: '9606663@gmail.com' },
+            from: { email: 'yus2770@gmail.com' },
             content: [{
                 type: 'text/html',
                 value: emailHTML
